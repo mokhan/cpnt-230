@@ -2,4 +2,4 @@
 
 cd report
 
-latexmk
+latexmk -pdf -pvc -silent
