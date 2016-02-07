@@ -1,26 +1,93 @@
-\documentclass[11pt, oneside]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
-\usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
-\geometry{letterpaper}                   		% ... or a4paper or a5paper or ... 
-%\geometry{landscape}                		% Activate for rotated page geometry
-%\usepackage[parfill]{parskip}    		% Activate to begin paragraphs with an empty line rather than an indent
-\usepackage{graphicx}				% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
-								% TeX will automatically convert eps --> pdf in pdflatex		
-\usepackage{amssymb}
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{booktabs}
 
-%SetFonts
-
-%SetFonts
-
-
-\title{Penetration Testing Report}
+\title{My first document}
+%\date{}
 \author{Mo Khan}
-%\date{}							% Activate to display a given date or no date
 
 \begin{document}
-\maketitle
-%\section{}
-%\subsection{}
+  \pagenumbering{gobble}
+  \maketitle
+  \newpage
+  \tableofcontents
+  \newpage
+  \pagenumbering{arabic}
 
+  \section{Section}
 
+  Hello World!
+
+  \subsection{Subsection}
+
+  Structuring a document is easy!
+
+  \subsubsection{Subsubsection}
+
+  More text.
+
+  \paragraph{Paragraph}
+
+  Some more text.
+
+  \subparagraph{Subparagraph}
+
+  Even more text.
+
+  \newpage
+  \section{Another section}
+
+  \begin{equation*}
+    f(x) = x^2
+  \end{equation*}
+
+  This is some example text\footnote{\label{myfootnote}Hello footnote}.
+
+  \begin{figure}[h!]
+    \includegraphics[width=\linewidth]{images/screenshot.png}
+    \caption{A boat.}
+    \label{fig:boat1}
+  \end{figure}
+
+  Figure \ref{fig:boat1} shows a boat.
+
+  \begin{table}[h!]
+    \centering
+    \caption{Caption for the table.}
+    \label{tab:table1}
+    \begin{tabular}{l|c||r}
+      1 & 2 & 3\\
+      \hline
+      a & b & c\\
+    \end{tabular}
+  \end{table}
+
+  I'm referring to footnote \ref{myfootnote}.
+
+  \begin{table}[h!]
+    \centering
+    \caption{Caption for the table.}
+    \label{tab:table2}
+    \begin{tabular}{ccc}
+      \toprule
+      Some & actual & content\\
+      \midrule
+      prettifies & the & content\\
+      as & well & as\\
+      using & the & booktabs package\\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+
+  \newpage
+  \begin{table}
+    \caption{Dummy table}
+  \end{table}
+
+  \begin{appendix}
+    \listoffigures
+    \listoftables
+  \end{appendix}
 
 \end{document}
