@@ -1,11 +1,28 @@
 \documentclass{article}
 \usepackage{amsmath}
 \usepackage{booktabs}
+\usepackage{color}
 \usepackage{graphicx}
+\usepackage{listings}
 \usepackage{pgfplotstable}
 \usepackage{pgfplots}
 \usepackage{siunitx}
 \usepackage{tikz}
+
+\lstset{
+  language=Perl,
+  basicstyle=\small\sffamily,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=tb,
+  tabsize=4,
+  columns=fixed,
+  showstringspaces=false,
+  showtabs=false,
+  keepspaces,
+  commentstyle=\color{red},
+  keywordstyle=\color{blue}
+}
 
 \pgfplotsset{compat=newest} % place the legend below the plot
 \usepgfplotslibrary{units} % display units nicely
@@ -150,6 +167,12 @@ I'm referring to footnote~\ref{myfootnote}.
     \caption{Example graphic made with tikz.}
   \end{center}
 \end{figure}
+
+\newpage
+\begin{lstlisting}
+#!/usr/bin/perl
+print S(@ARGV);sub S{$r=(@_[0]%4==0&&@_[0]%100!=0)||@_[0]%400=0;}
+\end{lstlisting}
 
 \newpage
 \begin{appendix}
