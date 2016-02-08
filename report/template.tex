@@ -8,6 +8,7 @@
 \usepackage{pgfplots}
 \usepackage{siunitx}
 \usepackage{tikz}
+\usepackage{csvsimple}
 
 \lstset{
   language=Perl,
@@ -75,8 +76,17 @@ Even more text.
 \section{Recon}
 \subsection{Information}
 \subsubsection{DNS}
+
+List out entries found in the /etc/hosts file.
+
 \subsubsection{IP Ranges}
+
+Use genlist to generate a list of ip addresses found.
+
 \subsubsection{Domain names}
+
+\csvautotabular{hosts.csv}
+
 \subsection{Diagrams and spreadsheets}
 \subsection{Tools}
 
@@ -84,6 +94,27 @@ Even more text.
 \section{Mapping}
 \subsection{Open Ports}
 \subsection{Service version}
+
+\csvautotabular{ports.csv}
+
+\noindent The following command :
+\begin{lstlisting}[language=bash]
+$ nmap -sV localhost
+
+Starting Nmap 7.01 ( https://nmap.org ) at 2016-02-08 12:02 MST
+Nmap scan report for localhost (127.0.0.1)
+Host is up (0.00036s latency).
+Other addresses for localhost (not scanned): ::1
+Not shown: 998 closed ports
+PORT     STATE SERVICE    VERSION
+2222/tcp open  ssh        OpenSSH 5.3 (protocol 2.0)
+3000/tcp open  tcpwrapped
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 8.78 seconds
+
+\end{lstlisting}
+
 \subsection{Exploits Available}
 
 \newpage

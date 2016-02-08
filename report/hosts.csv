@@ -1,0 +1,5 @@
+hostname,ip address
+bwa.sait230.ca,10.10.10.1
+metasploitable.sait230.ca,10.10.10.2
+tomcat-apache.sait230.ca,10.10.10.3
+ultimatelamp.sait230.ca,10.10.10.4

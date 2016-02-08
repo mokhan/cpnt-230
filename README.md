@@ -21,10 +21,11 @@
   * used for recon, discovery and mapping phases.
 
 Targets:
-* metasploitable
-* tomcat-apache
-* bwa
-* ultimatelamp
+
+* metasploitable.sait230.ca
+* tomcat-apache.sait230.ca
+* bwa.sait230.ca
+* ultimatelamp.sait230.ca
 
 # web security technologies
 
