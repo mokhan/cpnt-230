@@ -6,3 +6,4 @@ report/*.log
 report/*.lot
 report/*.pdf
 report/*.toc
+vms
