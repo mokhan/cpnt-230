@@ -22,9 +22,9 @@
 
 Targets:
 
+* bwa.sait230.ca
 * metasploitable.sait230.ca
 * tomcat-apache.sait230.ca
-* bwa.sait230.ca
 * ultimatelamp.sait230.ca
 
 # web security technologies
