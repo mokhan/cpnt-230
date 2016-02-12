@@ -3,8 +3,7 @@ bwa,10.2.1.8,139,netbios-ssn,Samba smbd 3.X (workgroup: WORKGROUP)
 bwa,10.2.1.8,143,imap,Courier Imapd (released 2008)
 bwa,10.2.1.8,22,ssh,OpenSSH 5.3p1 Debian 3ubuntu4 (protocol 2.0)
 bwa,10.2.1.8,445,netbios-ssn,Samba smbd 3.X (workgroup: WORKGROUP)
-bwa,10.2.1.8,5001,ovm-manager,Oracle VM Manager
-bwa,10.2.1.8,8080,http,Apache Tomcat/Coyote JSP engine 1.1
+bwa,10.2.1.8,80,http,Apache httpd 2.2.14 ((Ubuntu) mod\_mono/2.4.3 PHP/5.3.2-1ubuntu4.5 with Suhosin-Patch mod\_python/3.3.1 Python/2.6.5 mod\_perl/2.0.4 Perl/v5.10.1)
 metasploitable,10.2.1.1,1099,rmiregistry,GNU Classpath grmiregistry
 metasploitable,10.2.1.1,111,rpcbind,(rpcbind V2) 2 (rpc 100000)
 metasploitable,10.2.1.1,139,netbios-ssn,Samba smbd 3.X (workgroup: WORKGROUP)
@@ -26,6 +25,8 @@ metasploitable,10.2.1.1,5900,vnc,VNC (protocol 3.3)
 metasploitable,10.2.1.1,6000,X11,
 metasploitable,10.2.1.1,6667,irc,Unreal ircd
 metasploitable,10.2.1.1,80,http,Apache httpd 2.2.8 ((Ubuntu) DAV/2)
+metasploitable,10.2.1.1,8009,ajp13,Apache Jserv (Protocol v1.3)
+metasploitable,10.2.1.1,8180,http,Apache Tomcat/Coyote JSP engine 1.1
 tomcat-apache,10.2.1.6,22,ssh,OpenSSH 5.5p1 Debian 6+squeeze2 (protocol 2.0)
 tomcat-apache,10.2.1.6,443,ssl/http,Apache httpd 2.2.16 ((Debian))
 tomcat-apache,10.2.1.6,80,http,Apache httpd 2.2.16 ((Debian))

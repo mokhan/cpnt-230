@@ -205,6 +205,37 @@ Nmap done: 1 IP address (1 host up) scanned in 8.78 seconds
 
 \subsubsection{metasploitable.sait230.ca}
 
+\begin{lstlisting}[language=bash]
+Starting Nmap 6.01 ( http://nmap.org ) at 2016-02-12 13:40 EST
+Nmap scan report for metasploitable.sait230.ca (10.2.1.1)
+Host is up (0.0022s latency).
+Not shown: 977 closed ports
+PORT     STATE SERVICE              VERSION
+21/tcp   open  ftp                  vsftpd 2.3.4
+22/tcp   open  ssh                  OpenSSH 4.7p1 Debian 8ubuntu1 (protocol 2.0)
+23/tcp   open  telnet               Linux telnetd
+25/tcp   open  smtp                 Postfix smtpd
+53/tcp   open  domain               ISC BIND 9.4.2
+80/tcp   open  http                 Apache httpd 2.2.8 ((Ubuntu) DAV/2)
+111/tcp  open  rpcbind (rpcbind V2) 2 (rpc #100000)
+139/tcp  open  netbios-ssn          Samba smbd 3.X (workgroup: WORKGROUP)
+445/tcp  open  netbios-ssn          Samba smbd 3.X (workgroup: WORKGROUP)
+512/tcp  open  exec?
+513/tcp  open  login?
+514/tcp  open  tcpwrapped
+1099/tcp open  rmiregistry          GNU Classpath grmiregistry
+1524/tcp open  ingreslock?
+2049/tcp open  nfs (nfs V2-4)       2-4 (rpc #100003)
+2121/tcp open  ftp                  ProFTPD 1.3.1
+3306/tcp open  mysql                MySQL 5.0.51a-3ubuntu5
+5432/tcp open  postgresql           PostgreSQL DB 8.3.0 - 8.3.7
+5900/tcp open  vnc                  VNC (protocol 3.3)
+6000/tcp open  X11                  (access denied)
+6667/tcp open  irc                  Unreal ircd
+8009/tcp open  ajp13                Apache Jserv (Protocol v1.3)
+8180/tcp open  http                 Apache Tomcat/Coyote JSP engine 1.1
+\end{lstlistring}
+
 I chose to spider the metasploitable website to analyze the full site locally 
 to try to identify and information leakage in the website.
 
@@ -257,9 +288,65 @@ just making all this up. -->
 "http://www.w3.org/TR/19 99/REC-html401-19991224/loose.dtd">
 \end{lstlisting}
 
-Next, I ran a nessus scan against this host:
-
 \subsubsection{bwa.sait230.ca}
+
+\begin{lstlisting}[language=bash]
+root@bt-was:~# nmap -sV bwa.sait230.ca | less
+
+Starting Nmap 6.01 ( http://nmap.org ) at 2016-02-12 13:57 EST
+Nmap scan report for bwa.sait230.ca (10.2.1.8)
+Host is up (0.0011s latency).
+Not shown: 995 closed ports
+PORT    STATE SERVICE     VERSION
+22/tcp  open  ssh         OpenSSH 5.3p1 Debian 3ubuntu4 (protocol 2.0)
+80/tcp  open  http        Apache httpd 2.2.14 ((Ubuntu) mod_mono/2.4.3 PHP/5.3.2-1ubuntu4.5 with Suhosin-Patch mod_python/3.3.1 Python/2.6.5 mod_perl/2.0.4 Perl/v5.10.1)
+139/tcp open  netbios-ssn Samba smbd 3.X (workgroup: WORKGROUP)
+143/tcp open  imap        Courier Imapd (released 2008)
+445/tcp open  netbios-ssn Samba smbd 3.X (workgroup: WORKGROUP)
+MAC Address: 00:0C:29:4C:6D:F9 (VMware)
+Service Info: OS: Linux; CPE: cpe:/o:linux:kernel
+
+Service detection performed. Please report any incorrect results at http://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 11.26 seconds
+\end{lstlisting}
+
+
+\subsubsection{tomcat-apache.sait230.ca}
+
+\begin{lstlisting}[language=bash]
+root@bt-was:~# nmap -sV tomcat-apache.sait230.ca
+
+Starting Nmap 6.01 ( http://nmap.org ) at 2016-02-12 13:42 EST
+Nmap scan report for tomcat-apache.sait230.ca (10.2.1.6)
+Host is up (0.00052s latency).
+Not shown: 997 closed ports
+PORT    STATE SERVICE  VERSION
+22/tcp  open  ssh      OpenSSH 5.5p1 Debian 6+squeeze2 (protocol 2.0)
+80/tcp  open  http     Apache httpd 2.2.16 ((Debian))
+443/tcp open  ssl/http Apache httpd 2.2.16 ((Debian))
+MAC Address: 00:0C:29:72:36:2B (VMware)
+Service Info: OS: Linux; CPE: cpe:/o:linux:kernel
+
+Service detection performed. Please report any incorrect results at http://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 12.27 seconds
+\end{lstlisting}
+
+\subsubsection{ultimatelamp.sait230.ca}
+
+\begin{lstlisting}[language=bash]
+root@bt-was:~# nmap -sV ultimatelamp.sait230.ca
+
+Starting Nmap 6.01 ( http://nmap.org ) at 2016-02-12 13:43 EST
+Nmap scan report for ultimatelamp.sait230.ca (10.2.1.3)
+Host is up (0.030s latency).
+Not shown: 999 closed ports
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Apache httpd 2.0.54 ((Ubuntu) PHP/5.0.5-2ubuntu1.2)
+MAC Address: 00:0C:29:23:94:3C (VMware)
+
+Service detection performed. Please report any incorrect results at http://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 6.36 seconds
+\end{lstlisting}
 
 \subsection{Exploits Available}
 
@@ -279,23 +366,61 @@ Web Application vulnerabilities discovered
 nikto scan:
 
 \begin{lstlisting}[language=Bash]
+root@bt-was:/pentest/web/nikto# ./nikto.pl -host bwa.sait230.ca -p 80
+- Nikto v2.1.5
+---------------------------------------------------------------------------
++ Target IP:          10.2.1.8
++ Target Hostname:    bwa.sait230.ca
++ Target Port:        80
++ Start Time:         2016-02-12 14:03:58 (GMT-5)
+---------------------------------------------------------------------------
++ Server: Apache/2.2.14 (Ubuntu) mod_mono/2.4.3 PHP/5.3.2-1ubuntu4.5 with Suhosin-Patch mod_python/3.3.1 Python/2.6.5 mod_perl/2.0.4 Perl/v5.10.1
++ OSVDB-3268: /cgi-bin/: Directory indexing found.
++ Apache/2.2.14 appears to be outdated (current is at least Apache/2.2.19). Apache 1.3.42 (final release) and 2.0.64 are also current.
++ mod_perl/2.0.4 appears to be outdated (current is at least 5.8)
++ mod_mono/2.4.3 appears to be outdated (current is at least 2.8)
++ PHP/5.3.2-1ubuntu4.5 appears to be outdated (current is at least 5.3.6)
++ Python/2.6.5 appears to be outdated (current is at least 2.6.10)
++ Perl/v5.10.1 appears to be outdated (current is at least v5.12.2)
++ OSVDB-630: IIS may reveal its internal or real IP in the Location header via a request to the /images directory. The value is "http://127.0.0.1/images/".
++ Allowed HTTP Methods: GET, HEAD, POST, OPTIONS, TRACE 
++ OSVDB-877: HTTP TRACE method is active, suggesting the host is vulnerable to XST
++ Retrieved x-powered-by header: PHP/5.3.2-1ubuntu4.5
++ OSVDB-3268: : Directory indexing found.
++ OSVDB-3092: /phpmyadmin/changelog.php: phpMyAdmin is for managing MySQL databases, and should be protected or limited to authorized hosts.
++ OSVDB-3268: /test/: Directory indexing found.
++ OSVDB-3092: /test/: This might be interesting...
++ OSVDB-3092: /cgi-bin/: This might be interesting... possibly a system shell found.
++ OSVDB-3268: /icons/: Directory indexing found.
 + OSVDB-3268: /images/: Directory indexing found.
 + OSVDB-3268: /images/?pattern=/etc/*&sort=name: Directory indexing found.
 + OSVDB-3233: /icons/README: Apache default file found.
-+ OSVDB-40478: /tikiwiki/tiki-graph\_formula.php?w=1&h=1&s=1&min=1&max=2&f[]=x.tan.phpinfo()&t=png&title=http://cirt.net/rfiinc.txt?: TikiWiki contains a vulnerability which allows remote attackers to execute arbitrary PHP code.
++ OSVDB-40478: /tikiwiki/tiki-graph_formula.php?w=1&h=1&s=1&min=1&max=2&f[]=x.tan.phpinfo()&t=png&title=http://cirt.net/rfiinc.txt?: TikiWiki contains a vulnerability which allows remote attackers to execute arbitrary PHP code.
 + /wordpress/: A Wordpress installation was found.
 + /phpmyadmin/: phpMyAdmin directory found
-+ 6474 items checked: 2 error(s) and 23 item(s) reported on remote host
-+ End Time:           2016-02-12 11:16:58 (GMT-5) (58 seconds)
++ 6474 items checked: 1 error(s) and 23 item(s) reported on remote host
++ End Time:           2016-02-12 14:04:43 (GMT-5) (45 seconds)
 ---------------------------------------------------------------------------
 + 1 host(s) tested
-\end{lstlisting}[language=Bash]
+\end{lstlisting}
 
 \subsection{Vulnerabilities for metasploitable.sait230.ca}
 
 nikto scan:
 
 \begin{lstlisting}[language=Bash]
+root@bt-was:/pentest/web/nikto# ./nikto.pl -host metasploitable.sait230.ca -p 80
+- Nikto v2.1.5
+---------------------------------------------------------------------------
++ Target IP:          10.2.1.1
++ Target Hostname:    metasploitable.sait230.ca
++ Target Port:        80
++ Start Time:         2016-02-12 14:02:27 (GMT-5)
+---------------------------------------------------------------------------
++ Server: Apache/2.2.8 (Ubuntu) DAV/2
++ Retrieved x-powered-by header: PHP/5.2.4-2ubuntu5.10
++ Apache/2.2.8 appears to be outdated (current is at least Apache/2.2.19). Apache 1.3.42 (final release) and 2.0.64 are also current.
++ DEBUG HTTP verb may show server debugging information. See http://msdn.microsoft.com/en-us/library/e8z01xdh%28VS.80%29.aspx for details.
 + OSVDB-877: HTTP TRACE method is active, suggesting the host is vulnerable to XST
 + OSVDB-3233: /phpinfo.php: Contains PHP configuration information
 + OSVDB-3268: /doc/: Directory indexing found.
@@ -304,20 +429,72 @@ nikto scan:
 + OSVDB-3092: /phpMyAdmin/changelog.php: phpMyAdmin is for managing MySQL databases, and should be protected or limited to authorized hosts.
 + OSVDB-3092: /phpMyAdmin/: phpMyAdmin is for managing MySQL databases, and should be protected or limited to authorized hosts.
 + OSVDB-3268: /test/: Directory indexing found.
-+ OSVDB-3092: /test/: This might be interesting
++ OSVDB-3092: /test/: This might be interesting...
 + OSVDB-3268: /icons/: Directory indexing found.
 + OSVDB-3233: /icons/README: Apache default file found.
 + /phpMyAdmin/: phpMyAdmin directory found
 + 6474 items checked: 1 error(s) and 15 item(s) reported on remote host
-+ End Time:           2016-02-12 11:16:54 (GMT-5) (54 seconds)
++ End Time:           2016-02-12 14:03:22 (GMT-5) (55 seconds)
 ---------------------------------------------------------------------------
 + 1 host(s) tested
 \end{lstlisting}
+
+\begin{lstlisting}[language=Bash]
+root@bt-was:/pentest/web/nikto# ./nikto.pl -host metasploitable.sait230.ca -p 8180
+- Nikto v2.1.5
+---------------------------------------------------------------------------
++ Target IP:          10.2.1.1
++ Target Hostname:    metasploitable.sait230.ca
++ Target Port:        8180
++ Start Time:         2016-02-12 13:59:59 (GMT-5)
+---------------------------------------------------------------------------
++ Server: Apache-Coyote/1.1
++ No CGI Directories found (use '-C all' to force check all possible dirs)
++ OSVDB-39272: /favicon.ico file identifies this server as: Apache Tomcat
++ Allowed HTTP Methods: GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS 
++ OSVDB-397: HTTP method ('Allow' Header): 'PUT' method could allow clients to save files on the web server.
++ OSVDB-5646: HTTP method ('Allow' Header): 'DELETE' may allow clients to remove files on the web server.
++ DEBUG HTTP verb may show server debugging information. See http://msdn.microsoft.com/en-us/library/e8z01xdh%28VS.80%29.aspx for details.
++ /: Appears to be a default Apache Tomcat install.
++ OSVDB-376: /admin/contextAdmin/contextAdmin.html: Tomcat may be configured to let attackers read arbitrary files. Restrict access to /admin.
++ OSVDB-3092: /admin/: This might be interesting...
++ OSVDB-3233: /tomcat-docs/index.html: Default Apache Tomcat documentation found.
++ OSVDB-3233: /manager/html-manager-howto.html: Tomcat documentation found.
++ OSVDB-3233: /manager/manager-howto.html: Tomcat documentation found.
++ OSVDB-3092: /webdav/index.html: WebDAV support is enabled.
++ OSVDB-3233: /jsp-examples/: Apache Java Server Pages documentation.
++ /admin/account.html: Admin login page/section found.
++ /admin/controlpanel.html: Admin login page/section found.
++ /admin/cp.html: Admin login page/section found.
++ /admin/index.html: Admin login page/section found.
++ /admin/login.html: Admin login page/section found.
++ /servlets-examples/: Tomcat servlets examples are visible.
++ 6474 items checked: 0 error(s) and 19 item(s) reported on remote host
++ End Time:           2016-02-12 14:02:01 (GMT-5) (122 seconds)
+---------------------------------------------------------------------------
++ 1 host(s) tested
+\end{lstlisting}
+
+The results from the nessus scan are below:
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/nessus-metasploitable.png}
+	\caption{Nessus Scan on metasploitable.sait230.ca.}
+	\label{fig:nessus-metasploitable}
+\end{figure}
 
 \subsection{Vulnerabilities for tomcat-apache.sait230.ca}
 nikto scan:
 
 \begin{lstlisting}[language=Bash]
+root@bt-was:/pentest/web/nikto# ./nikto.pl -host tomcat-apache.sait230.ca -p 80
+- Nikto v2.1.5
+---------------------------------------------------------------------------
++ Target IP:          10.2.1.6
++ Target Hostname:    tomcat-apache.sait230.ca
++ Target Port:        80
++ Start Time:         2016-02-12 14:09:30 (GMT-5)
+---------------------------------------------------------------------------
 + Server: Apache/2.2.16 (Debian)
 + Root page / redirects to: http://tomcat-apache.sait230.ca/cp
 + No CGI Directories found (use '-C all' to force check all possible dirs)
@@ -325,23 +502,82 @@ nikto scan:
 + OSVDB-3268: /icons/: Directory indexing found.
 + OSVDB-3233: /icons/README: Apache default file found.
 + 6474 items checked: 0 error(s) and 3 item(s) reported on remote host
-+ End Time:           2016-02-12 11:16:21 (GMT-5) (21 seconds)
++ End Time:           2016-02-12 14:09:38 (GMT-5) (8 seconds)
 ---------------------------------------------------------------------------
 + 1 host(s) tested
 \end{lstlisting}
+
+\begin{lstlisting}[language=Bash]
+root@bt-was:/pentest/web/nikto# ./nikto.pl -host tomcat-apache.sait230.ca -p 443
+- Nikto v2.1.5
+---------------------------------------------------------------------------
++ Target IP:          10.2.1.6
++ Target Hostname:    tomcat-apache.sait230.ca
++ Target Port:        443
+---------------------------------------------------------------------------
++ SSL Info:        Subject: /O=TurnKey Linux/OU=Software appliances
+                   Ciphers: DHE-RSA-AES256-SHA
+                   Issuer:  /O=TurnKey Linux/OU=Software appliances
++ Start Time:         2016-02-12 14:06:31 (GMT-5)
+---------------------------------------------------------------------------
++ Server: Apache/2.2.16 (Debian)
++ Root page / redirects to: https://tomcat-apache.sait230.ca/cp
++ No CGI Directories found (use '-C all' to force check all possible dirs)
++ Apache/2.2.16 appears to be outdated (current is at least Apache/2.2.19). Apache 1.3.42 (final release) and 2.0.64 are also current.
++ OSVDB-3268: /icons/: Directory indexing found.
++ OSVDB-3233: /icons/README: Apache default file found.
++ 6474 items checked: 0 error(s) and 3 item(s) reported on remote host
++ End Time:           2016-02-12 14:08:57 (GMT-5) (146 seconds)
+---------------------------------------------------------------------------
++ 1 host(s) tested
+\end{lstlisting}
+
+The results from the nessus scan are below:
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/nessus-tomcat.png}
+	\caption{Nessus Scan on tomcat-apache.sait230.ca}
+	\label{fig:nessus-tomcat}
+\end{figure}
 
 \subsection{Vulnerabilities for ultimatelamp.sait230.ca}
 nikto scan:
 
 \begin{lstlisting}[language=Bash]
+root@bt-was:/pentest/web/nikto# ./nikto.pl -host ultimatelamp.sait230.ca -p 80
+- Nikto v2.1.5
+---------------------------------------------------------------------------
++ Target IP:          10.2.1.3
++ Target Hostname:    ultimatelamp.sait230.ca
++ Target Port:        80
++ Start Time:         2016-02-12 14:10:16 (GMT-5)
+---------------------------------------------------------------------------
++ Server: Apache/2.0.54 (Ubuntu) PHP/5.0.5-2ubuntu1.2
++ PHP/5.0.5-2ubuntu1.2 appears to be outdated (current is at least 5.3.6)
++ Apache/2.0.54 appears to be outdated (current is at least Apache/2.2.19). Apache 1.3.42 (final release) and 2.0.64 are also current.
++ Allowed HTTP Methods: GET, HEAD, POST, OPTIONS, TRACE 
++ OSVDB-877: HTTP TRACE method is active, suggesting the host is vulnerable to XST
++ Retrieved x-powered-by header: PHP/5.0.5-2ubuntu1.2
++ OSVDB-8450: /phpmyadmin/db_details_importdocsql.php?submit_show=true&do=import&docpath=../: phpMyAdmin allows directory listings remotely. Upgrade to version 2.5.3 or higher. http://www.securityfocus.com/bid/7963.
++ OSVDB-3268: /tmp/: Directory indexing found.
++ OSVDB-3092: /tmp/: This might be interesting...
++ OSVDB-3093: /dotproject/modules/files/index_table.php: This might be interesting... has been seen in web logs from an unknown scanner.
++ OSVDB-3093: /dotproject/modules/projects/addedit.php: This might be interesting... has been seen in web logs from an unknown scanner.
++ OSVDB-3093: /dotproject/modules/projects/view.php: This might be interesting... has been seen in web logs from an unknown scanner.
++ /dotproject/modules/projects/vw_files.php: PHP include error reveals the full path to the web root.
++ OSVDB-3093: /dotproject/modules/projects/vw_files.php: This might be interesting... has been seen in web logs from an unknown scanner.
++ OSVDB-3093: /dotproject/modules/tasks/addedit.php: This might be interesting... has been seen in web logs from an unknown scanner.
++ OSVDB-3093: /dotproject/modules/tasks/viewgantt.php: This might be interesting... has been seen in web logs from an unknown scanner.
++ OSVDB-3093: /webcalendar/login.php: This might be interesting... has been seen in web logs from an unknown scanner.
++ OSVDB-3268: /icons/: Directory indexing found.
 + OSVDB-3268: /images/: Directory indexing found.
 + OSVDB-3268: /images/?pattern=/etc/*&sort=name: Directory indexing found.
 + OSVDB-3233: /icons/README: Apache default file found.
-+ OSVDB-40478: /tikiwiki/tiki-graph\_formula.php?w=1&h=1&s=1&min=1&max=2&f[]=x.tan.phpinfo()&t=png&title=http://cirt.net/rfiinc.txt?: TikiWiki contains a vulnerability which allows remote attackers to execute arbitrary PHP code.
++ OSVDB-40478: /tikiwiki/tiki-graph_formula.php?w=1&h=1&s=1&min=1&max=2&f[]=x.tan.phpinfo()&t=png&title=http://cirt.net/rfiinc.txt?: TikiWiki contains a vulnerability which allows remote attackers to execute arbitrary PHP code.
 + /wordpress/: A Wordpress installation was found.
 + /phpmyadmin/: phpMyAdmin directory found
 + 6474 items checked: 3 error(s) and 23 item(s) reported on remote host
-+ End Time:           2016-02-12 11:17:30 (GMT-5) (90 seconds)
++ End Time:           2016-02-12 14:12:41 (GMT-5) (145 seconds)
 ---------------------------------------------------------------------------
 + 1 host(s) tested
 \end{lstlisting}
@@ -447,7 +683,59 @@ mysql> select user, password from users;
 6 rows in set (0.01 sec)
 \end{lstlisting}
 
+In the nikto scan we saw that the metasploitable box was using a defaul Apache
+Tomcat installation:
+
+\begin{lstlisting}
++ /: Appears to be a default Apache Tomcat install.
+\end{lstlisting}
+
+The default credentials to access the Tomcat manager is username: tomcat and password: tomcat.
+The first step is to open the Tomcat homepage.
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/tomcat-metasploitable.png}
+	\caption{Default Tomcat install.}
+	\label{fig:tomcat-injection1}
+\end{figure}
+
+Then click on Tomcat Manager and enter the default credentials.
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/tomcat-metasploitable-credentials.png}
+	\caption{Default Tomcat install.}
+	\label{fig:tomcat-injection2}
+\end{figure}
+
+Now we can start and stop existing applications. We can upload our own WAR files.
+We can either craft a WAR file with a metasploit payload using msfvenom. In the 
+particular case I opted to use a laudanum cmd.war file.
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/tomcat-metasploitable-deploy.png}
+	\caption{Default Tomcat install.}
+	\label{fig:tomcat-injection3}
+\end{figure}
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/tomcat-metasploitable-upload.png}
+	\caption{Upload war file to Tomcat.}
+	\label{fig:tomcat-injection4}
+\end{figure}
+
+If we open the new cmd web application hosted at cmd/cmd.jsp, we now have the
+ability to run shell commands on this host.
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/tomcat-metasploitable-cmd.png}
+	\caption{Use cmd app to run shell commands.}
+	\label{fig:tomcat-injection5}
+\end{figure}
+
+\newpage
 \subsection{Exploits for tomcat-apache.sait230.ca}
+
+
 \subsection{Exploits for bwa.sait230.ca}
 
 I identified and exploited a sql injection vulnerability in a web application called DVWA\@.
@@ -524,6 +812,36 @@ It looks like the dvwa web application running on bwa.sait230.ca was connecting 
 instance of mysql running from metasploitable.sait230.ca. Using this sql injection vulnerability
 I was able to dump the dvwa database as well as all the other databases
 running from metasploitable.sait230.ca database server.
+
+
+
+Next, I found a page called "XSS reflected". On this page, there is a textbox where
+you can enter some text and then click on the submit button.
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/dvwa-xss-page.png}
+	\caption{XSS Page.}
+	\label{fig:xss-page1}
+\end{figure}
+
+If you look closely in the Figure~\ref{fig:xss-page1} you can see a 
+query string parameter appended to the URL in the address bar.
+
+I tampered with the query string parameter to see if I could get
+some arbitrary javascript code to execute in the context of this
+page.
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/dvwa-xss-page-exploit.png}
+	\caption{XSS Page.}
+	\label{fig:xss-page2}
+\end{figure}
+
+In Figure~\ref{fig:xss-page1} you can see I was able to hijack the logged
+in users session cookie. This allows an attacker to post the logged in
+users session cookie to a server that the attacker owns. This would allow
+an attacker to log in as any user that opened this page with the specially
+crafted URL.
 
 \subsection{Exploits for ultimatelamp.sait230.ca}
 
