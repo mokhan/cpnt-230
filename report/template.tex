@@ -843,6 +843,78 @@ users session cookie to a server that the attacker owns. This would allow
 an attacker to log in as any user that opened this page with the specially
 crafted URL.
 
+
+In the previous phases I saw that this host is also running a wordpress
+installation. I used wpscan to see if we could find out more about this installation.
+
+\begin{lstlisting}[language=Bash]
+root@bt-was:/pentest/web/wpscan# ./wpscan.rb --url bwa.sait230.ca/wordpress --enumerate p
+____________________________________________________
+ __          _______   _____                  
+ \ \        / /  __ \ / ____|                 
+  \ \  /\  / /| |__) | (___   ___  __ _ _ __  
+   \ \/  \/ / |  ___/ \___ \ / __|/ _` | '_ \ 
+    \  /\  /  | |     ____) | (__| (_| | | | |
+     \/  \/   |_|    |_____/ \___|\__,_|_| |_| v1.1
+
+  WordPress Security Scanner by ethicalhack3r.co.uk
+ Sponsored by the RandomStorm Open Source Initiative
+_____________________________________________________
+
+
+| URL: http://bwa.sait230.ca/wordpress/
+| Started on Fri Feb 12 14:40:44 2016
+
+[!] The WordPress theme in use is called "default".
+[!] The WordPress "http://bwa.sait230.ca/wordpress/readme.html" file exists.
+[!] WordPress version 2.0 identified from meta generator.
+
+[+] Enumerating installed plugins...
+
+Checking for 2892 total plugins... 100% complete.
+
+[+] We found 2 plugins:
+
+Name: mygallery
+Location: http://bwa.sait230.ca/wordpress/wp-content/plugins/mygallery/
+Directory listing enabled? Yes.
+
+Name: wpSS
+Location: http://bwa.sait230.ca/wordpress/wp-content/plugins/wpSS/
+Directory listing enabled? Yes.
+
+[+] There were 1 vulnerabilities identified from the plugin names:
+
+[!] Wordpress Plugin Spreadsheet <= 0.6 SQL Injection Vulnerability
+* Reference: http://www.exploit-db.com/exploits/5486/
+
+[+] Finished at Fri Feb 12 14:40:49 2016
+\end{lstlisting}
+
+wpscan has detected 1 vulnerable plugin that will allow SQL injection. So I went
+to exploit db to get the details for this vulnerability.
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/wp-exploitdb.png}
+	\caption{wordpress sqlinjection exploit.}
+	\label{fig:wordpress1}
+\end{figure}
+
+Then I crafted the url to exploit the SQL injection vulnerability.
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/wp-admin-credentials.png}
+	\caption{wordpress sql injection admin credentials.}
+	\label{fig:wordpress2}
+\end{figure}
+
+Using the SQL injection vulnerability I was able to get the admin credentials
+for this wordpress site.
+
+username: admin
+password: 21232f297a57a5a743894a0e4a801fc3
+email: admin@example.org
+
 \subsection{Exploits for ultimatelamp.sait230.ca}
 
 \newpage
