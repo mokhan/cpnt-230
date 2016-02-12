@@ -45,15 +45,94 @@
 
 \section{Executive Summary}
 
-Hello World!
+Mo Khan has been contracted to conduct a penetration test against SAIT CPNT-230 provided
+virtual machines. The test simulates a malicious attacker with access to the
+network in a targeted attack against the hosts identified on the private network.
+
+The following report details the findings and recommendations, intended to be submitted
+to the instructor for grading.
 
 \subsection{Summary of Results}
 
-Structuring a document is easy!
+During testing, the following major items led to compromise of systems and control
+of key web applications and user data.
 
-\subsubsection{Subsubsection}
+\begin{enumerate}
+  \item Cross Site Scripting
+  \item SQL Injection vulnerability leading to full database dump.
+  \item Root access to MySQL server.
+  \item SQL Injection vulnerability in Wordpress plugin leading to admin access.
+  \item Default Tomcat installation
+\end{enumerate}
 
-More text.
+The following sections details the penetration testing results and provides 
+recommendations to remediate the issues identified.
+
+\subsubsection{Project Scope}
+
+The scope of the assessment included penetration testing against the below systems:
+
+\begin{itemize}
+  \item bwa.sait230.ca (10.2.1.8)
+  \item metasploitable.sait230.ca (10.2.1.1)
+  \item tomcat-apache.sait230.ca (10.2.1.6)
+  \item ultimatelamp.sait230.ca (10.2.1.3)
+\end{itemize}
+
+\subsubsection{Methodology}
+
+The following methodology was used:
+
+\begin{description}
+  \item[Information Gathering] During this phase of the test we identify the hosts on the network. Then we enumerate open ports and services. We attempt to identify operating systems and versions of services running on each of the hosts. We attempt to identify possible vulnerabilities to gain access to hosts or identify information that could help us move to the next phase.
+  \item[Passive Intelligence] In this phase we attempt to gather indirect information such as whois information.
+  \item[Exploitation] During this phase we attempt to exploit vulnerabilities and/or identify services to reach the highest level or privileges allowable.
+  \item[Post Exploitation] We document and report all findings during the previous steps.
+\end{description}
+
+The following tools were utilized to conduct the penetration test:
+
+\begin{itemize}
+  \item genlist
+  \item httpprint
+  \item ifconfig
+  \item nessus
+  \item nikto
+  \item nmap
+  \item sqlmap
+  \item wget
+  \item wpscan
+\end{itemize}
+
+\subsubsection{Issue Severity Rating}
+
+The issues are rated according to the following severity:
+
+\begin{center}
+  \begin{tabular}{ | l | l | }
+    \hline
+    \textbf{Severity} & \textbf{Description} \\ \hline \hline
+    High & Issue led to full system compromise. \\ \hline
+    Medium & Issue led to partial system compromise. \\ \hline
+    Low & Issue led to information disclosure. \\
+    \hline
+  \end{tabular}
+\end{center}
+
+\subsubsection{Technical Summary of Issues}
+
+\begin{center}
+  \begin{tabular}{| l | l | | l |}
+    \hline
+    \textbf{Severity} & \textbf{Issue Title} & \textbf{Recommendation Summary} \\ \hline \hline
+    High & Cross Site Scripting & Validate all user input \\ \hline
+    High & SQL Injection vulnerability & Validate all user input, use different mysql account for each application. \\ \hline
+    High & Root access to MySQL server. & Disable mysql root account. \\ \hline
+    High & SQL Injection vulnerability in Wordpress plugin leading to admin access. & Disable vulnerable plugin or upgrade. \\ \hline
+    High & Default Tomcat installation & Change default tomcat installation and control access to admin interface. \\ \hline
+    \hline
+  \end{tabular}
+\end{center}
 
 \paragraph{Paragraph}
 
@@ -61,7 +140,19 @@ Some more text.
 
 \subparagraph{Subparagraph}
 
+\newpage
+\section{Cross Site Scripting}
+
 Even more text.
+
+\newpage
+\section{SQL Injection vulnerability}
+\newpage
+\section{Root access to MySQL server}
+\newpage
+\section{SQL Injection vulnerability in Wordpress plugin}
+\newpage
+\section{Default Tomcat installation}
 
 %\newpage
 %\section{Attack Narrative}
@@ -74,7 +165,7 @@ Even more text.
 %\subsection{Attacker Control of Archmake Transactions}
 
 \newpage
-\section{Recon}
+\section{Reconnaissance}
 \subsection{Information}
 
 In order to get an understanding of what hosts are active on the network the first step 
@@ -149,21 +240,6 @@ root@bt-was:~/scans# fping 10.2.1.1 10.2.1.2 10.2.1.3 10.2.1.4 10.2.1.5 10.2.1.6
 \end{lstlisting}
 
 \csvautotabular{hosts.csv}
-
-\subsubsection{IP Ranges}
-
-Use genlist to generate a list of ip addresses found.
-
-\subsubsection{Domain names}
-
-\csvautotabular{hosts.csv}
-
-\newpage
-\subsection{Diagrams and spreadsheets}
-\subsection{Tools}
-
-* nmap
-* ifconfig
 
 \newpage
 \section{Mapping}
@@ -347,8 +423,6 @@ MAC Address: 00:0C:29:23:94:3C (VMware)
 Service detection performed. Please report any incorrect results at http://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 6.36 seconds
 \end{lstlisting}
-
-\subsection{Exploits Available}
 
 \newpage
 \section{Discovery}
@@ -582,20 +656,13 @@ root@bt-was:/pentest/web/nikto# ./nikto.pl -host ultimatelamp.sait230.ca -p 80
 + 1 host(s) tested
 \end{lstlisting}
 
-\subsection{Tools}
-
-* nikto
-* sqlmap
-* wget -R
-* httpprint
-
 \newpage
 \section{Exploitation}
 \subsection{Exploits for metasploitable.sait230.ca}
 
 /paragraph{MySQL}
-I noticed that port 3306 was open on this host from the reconasance phase. This port
-is used by mysql. I decided to try to connect to this port using the mysql client and 
+I noticed that port 3306 was open on this host from the reconnaissance phase. This port
+is used by mysql. I decided to try to connect to this port using the mysql client and
 using the default mysql installation user `root'.
 
 \begin{lstlisting}
