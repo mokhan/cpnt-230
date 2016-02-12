@@ -593,6 +593,7 @@ root@bt-was:/pentest/web/nikto# ./nikto.pl -host ultimatelamp.sait230.ca -p 80
 \section{Exploitation}
 \subsection{Exploits for metasploitable.sait230.ca}
 
+/paragraph{MySQL}
 I noticed that port 3306 was open on this host from the reconasance phase. This port
 is used by mysql. I decided to try to connect to this port using the mysql client and 
 using the default mysql installation user `root'.
@@ -683,6 +684,8 @@ mysql> select user, password from users;
 6 rows in set (0.01 sec)
 \end{lstlisting}
 
+\newpage
+\paragraph{Apache Tomcat}
 In the nikto scan we saw that the metasploitable box was using a defaul Apache
 Tomcat installation:
 
@@ -699,6 +702,7 @@ The first step is to open the Tomcat homepage.
 	\label{fig:tomcat-injection1}
 \end{figure}
 
+\newpage
 Then click on Tomcat Manager and enter the default credentials.
 
 \begin{figure}[h!]
@@ -707,15 +711,16 @@ Then click on Tomcat Manager and enter the default credentials.
 	\label{fig:tomcat-injection2}
 \end{figure}
 
+\newpage
 Now we can start and stop existing applications. We can upload our own WAR files.
 We can either craft a WAR file with a metasploit payload using msfvenom. In the 
 particular case I opted to use a laudanum cmd.war file.
 
-\begin{figure}[h!]
-	\includegraphics[width=\linewidth]{images/tomcat-metasploitable-deploy.png}
-	\caption{Default Tomcat install.}
-	\label{fig:tomcat-injection3}
-\end{figure}
+%\begin{figure}[h!]
+%	\includegraphics[width=\linewidth]{images/tomcat-metasploitable-deploy.png}
+%	\caption{Default Tomcat install.}
+%	\label{fig:tomcat-injection3}
+%\end{figure}
 
 \begin{figure}[h!]
 	\includegraphics[width=\linewidth]{images/tomcat-metasploitable-upload.png}
@@ -723,6 +728,7 @@ particular case I opted to use a laudanum cmd.war file.
 	\label{fig:tomcat-injection4}
 \end{figure}
 
+\newpage
 If we open the new cmd web application hosted at cmd/cmd.jsp, we now have the
 ability to run shell commands on this host.
 
@@ -736,6 +742,7 @@ ability to run shell commands on this host.
 \subsection{Exploits for tomcat-apache.sait230.ca}
 
 
+\newpage
 \subsection{Exploits for bwa.sait230.ca}
 
 I identified and exploited a sql injection vulnerability in a web application called DVWA\@.
@@ -759,7 +766,8 @@ returns does not mark the cookie as HTTPOnly, making it accessible via javascrip
 	\label{fig:sql-injection}
 \end{figure}
 
-With a value URL and Session cookie I can now use SQLMap to test out sql injection attacks.
+\newpage
+With a valid URL and Session cookie I can now use SQLMap to test out sql injection attacks.
 I was able to get a dump of the database exported as csv files.
 
 \begin{lstlisting}[language=Bash]
@@ -813,8 +821,8 @@ instance of mysql running from metasploitable.sait230.ca. Using this sql injecti
 I was able to dump the dvwa database as well as all the other databases
 running from metasploitable.sait230.ca database server.
 
-
-
+\newpage
+\paragraph{XSS}
 Next, I found a page called "XSS reflected". On this page, there is a textbox where
 you can enter some text and then click on the submit button.
 
@@ -827,6 +835,7 @@ you can enter some text and then click on the submit button.
 If you look closely in the Figure~\ref{fig:xss-page1} you can see a 
 query string parameter appended to the URL in the address bar.
 
+\newpage
 I tampered with the query string parameter to see if I could get
 some arbitrary javascript code to execute in the context of this
 page.
@@ -837,17 +846,19 @@ page.
 	\label{fig:xss-page2}
 \end{figure}
 
-In Figure~\ref{fig:xss-page1} you can see I was able to hijack the logged
+In Figure~\ref{fig:xss-page2} you can see I was able to hijack the logged
 in users session cookie. This allows an attacker to post the logged in
 users session cookie to a server that the attacker owns. This would allow
 an attacker to log in as any user that opened this page with the specially
 crafted URL.
 
+\newpage
+\paragraph{Wordpress}
 
 In the previous phases I saw that this host is also running a wordpress
 installation. I used wpscan to see if we could find out more about this installation.
 
-\begin{lstlisting}[language=Bash]
+\begin{lstlisting}[language=Bash, firstline=26, lastline=39]
 root@bt-was:/pentest/web/wpscan# ./wpscan.rb --url bwa.sait230.ca/wordpress --enumerate p
 ____________________________________________________
  __          _______   _____                  
@@ -891,6 +902,7 @@ Directory listing enabled? Yes.
 [+] Finished at Fri Feb 12 14:40:49 2016
 \end{lstlisting}
 
+\newpage
 wpscan has detected 1 vulnerable plugin that will allow SQL injection. So I went
 to exploit db to get the details for this vulnerability.
 
@@ -900,6 +912,8 @@ to exploit db to get the details for this vulnerability.
 	\label{fig:wordpress1}
 \end{figure}
 
+\newpage
+\paragraph{SQL Injection}
 Then I crafted the url to exploit the SQL injection vulnerability.
 
 \begin{figure}[h!]
@@ -908,13 +922,31 @@ Then I crafted the url to exploit the SQL injection vulnerability.
 	\label{fig:wordpress2}
 \end{figure}
 
-Using the SQL injection vulnerability I was able to get the admin credentials
-for this wordpress site.
+Using the SQL injection vulnerability I was able to get the admin credentials for this wordpress site.\ 
 
 username: admin
 password: 21232f297a57a5a743894a0e4a801fc3
 email: admin@example.org
 
+\newpage
+I then took the MD5 hash for the admin account and looked up the reversed value for it.
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/wp-admin-md5.png}
+	\caption{wordpress reverse md5 hash.}
+	\label{fig:wordpress3}
+\end{figure}
+
+\newpage
+Next I logged in to the wordpress site.
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/wp-logged-in.png}
+	\caption{wordpress dashboard.}
+	\label{fig:wordpress4}
+\end{figure}
+
+\newpage
 \subsection{Exploits for ultimatelamp.sait230.ca}
 
 \newpage
