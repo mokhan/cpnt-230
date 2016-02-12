@@ -62,22 +62,92 @@ Some more text.
 
 Even more text.
 
-\newpage
-\section{Attack Narrative}
-\subsection{Wordpress Exploitation}
-\subsection{Wordpress Plugin Unintended File Type Upload}
-\subsection{Linux Local Privilege Escalation}
-\subsection{Maintaining Access to Compromised Webserver}
-\subsection{Vulnerable Splunk Installation}
-\subsection{Domain Privilege Escalation}
-\subsection{Attacker Control of Archmake Transactions}
+%\newpage
+%\section{Attack Narrative}
+%\subsection{Wordpress Exploitation}
+%\subsection{Wordpress Plugin Unintended File Type Upload}
+%\subsection{Linux Local Privilege Escalation}
+%\subsection{Maintaining Access to Compromised Webserver}
+%\subsection{Vulnerable Splunk Installation}
+%\subsection{Domain Privilege Escalation}
+%\subsection{Attacker Control of Archmake Transactions}
 
 \newpage
 \section{Recon}
 \subsection{Information}
+
+In order to get an understanding of what hosts are active on the network the first step 
+I took was to find out what ip address the DHCP server assigned to my backtrack host using 
+ifconfig\footnote{\label{ifconfig}ifconfig -- configure network interface parameters} 
+
+\begin{lstlisting}[language=Bash, firstline=1, lastline=3]
+root@bt-was:~/# ifconfig eth0
+eth0      Link encap:Ethernet  HWaddr 00:0c:29:4b:5c:be  
+          inet addr:10.2.1.30  Bcast:10.2.1.31  Mask:255.255.255.224
+          inet6 addr: fe80::20c:29ff:fe4b:5cbe/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:472581 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:435725 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:258604722 (258.6 MB)  TX bytes:92862199 (92.8 MB)
+          Interrupt:19 Base address:0x2000 
+\end{lstlisting}
+
 \subsubsection{DNS}
 
-List out entries found in the /etc/hosts file.
+I used nmap\footnote{\label{nmap}nmap - Network exploration tool and security / port scanner} 
+to do a ping sweep of the active hosts in the 
+10.2.1.0/24 CIDR range.
+
+\begin{lstlisting}[language=Bash, firstline=1, lastline=1]
+root@bt-was:~/scans# nmap -sP 10.2.1.0/24
+
+Starting Nmap 6.01 ( http://nmap.org ) at 2016-02-12 09:51 EST
+Nmap scan report for metasploitable.sait230.ca (10.2.1.1)
+Host is up (0.00029s latency).
+MAC Address: 00:0C:29:B8:82:E1 (VMware)
+Nmap scan report for websecdojo.sait230.ca (10.2.1.2)
+Host is up (0.00027s latency).
+MAC Address: 00:0C:29:2A:C8:AF (VMware)
+Nmap scan report for ultimatelamp.sait230.ca (10.2.1.3)
+Host is up (0.00016s latency).
+MAC Address: 00:0C:29:23:94:3C (VMware)
+Nmap scan report for samurai.sait230.ca (10.2.1.4)
+Host is up (0.00038s latency).
+MAC Address: 00:0C:29:A9:4F:36 (VMware)
+Nmap scan report for nessus.sait230.ca (10.2.1.5)
+Host is up (0.00022s latency).
+MAC Address: 00:0C:29:90:C9:6F (VMware)
+Nmap scan report for tomcat-apache.sait230.ca (10.2.1.6)
+Host is up (0.00015s latency).
+MAC Address: 00:0C:29:72:36:2B (VMware)
+Nmap scan report for bwa.sait230.ca (10.2.1.8)
+Host is up (0.00028s latency).
+MAC Address: 00:0C:29:4C:6D:F9 (VMware)
+Nmap scan report for bt5r3-was.sait230.ca (10.2.1.30)
+Host is up.
+nexthost: failed to determine route to 10.2.1.32
+QUITTING!
+\end{lstlisting}
+
+In total I discovered 9 active hosts on the network. All hosts were 
+located in the 10.2.1.0/24 subnet.
+
+Next, I used fping\footnote{\label{fping}fping - fping - send ICMP ECHO\_REQUEST packets to network hosts} 
+to make sure these hosts were active on the network
+
+\begin{lstlisting}
+root@bt-was:~/scans# fping 10.2.1.1 10.2.1.2 10.2.1.3 10.2.1.4 10.2.1.5 10.2.1.6 10.2.1.8
+10.2.1.1 is alive
+10.2.1.2 is alive
+10.2.1.3 is alive
+10.2.1.4 is alive
+10.2.1.5 is alive
+10.2.1.6 is alive
+10.2.1.8 is alive
+\end{lstlisting}
+
+\csvautotabular{hosts.csv}
 
 \subsubsection{IP Ranges}
 
@@ -91,17 +161,18 @@ Use genlist to generate a list of ip addresses found.
 \subsection{Diagrams and spreadsheets}
 \subsection{Tools}
 
-* nikto
-* sqlmap
-* wget -R
-* httpprint
+* nmap
+* ifconfig
 
 \newpage
 \section{Mapping}
-\subsection{Open Ports}
-\subsection{Service version}
+\subsection{Open Ports/Services}
+
+Below is a list of open ports and services running. This list was put together using nmap.
 
 \csvautotabular{ports.csv}
+
+\newpage
 
 \noindent The following command :
 \begin{lstlisting}[language=bash]
@@ -130,6 +201,11 @@ Nmap done: 1 IP address (1 host up) scanned in 8.78 seconds
 \subsection{Vulnerabilities for bwa.sait230.ca}
 \subsection{Vulnerabilities for ultimatelamp.sait230.ca}
 \subsection{Tools}
+
+* nikto
+* sqlmap
+* wget -R
+* httpprint
 
 \newpage
 \section{Exploitation}

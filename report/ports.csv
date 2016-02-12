@@ -1,32 +1,32 @@
-HOST,PORT,SERVICE,VERSION
-bwa,139,netbios-ssn,Samba smbd 3.X (workgroup: WORKGROUP)
-bwa,143,imap,Courier Imapd (released 2008)
-bwa,22,ssh,OpenSSH 5.3p1 Debian 3ubuntu4 (protocol 2.0)
-bwa,445,netbios-ssn,Samba smbd 3.X (workgroup: WORKGROUP)
-bwa,5001,ovm-manager,Oracle VM Manager
-bwa,8080,http,Apache Tomcat/Coyote JSP engine 1.1
-metasploitable,1099,rmiregistry,GNU Classpath grmiregistry
-metasploitable,111,rpcbind,(rpcbind V2) 2 (rpc 100000)
-metasploitable,139,netbios-ssn,Samba smbd 3.X (workgroup: WORKGROUP)
-metasploitable,1524,,
-metasploitable,2049,nfs,(nfs V2-4)
-metasploitable,21,ftp,vsftpd 2.3.4
-metasploitable,2121,ftp,ProFTPD 1.3.1
-metasploitable,22,ssh,OpenSSH 4.7p1 Debian 8ubuntu1 (protocol 2.0)
-metasploitable,23,telnet,Linux telnetd
-metasploitable,25,smtp,Postfix smtpd
-metasploitable,3306,mysql,MySQL 5.0.51a-3ubuntu5
-metasploitable,445,netbios-ssn,Samba smbd 3.X (workgroup: WORKGROUP)
-metasploitable,512,,
-metasploitable,513,,
-metasploitable,514,tcpwrapped,
-metasploitable,53,domain,ISC BIND 9.4.2
-metasploitable,5432,postgresql,PostgreSQL DB 8.3.0 - 8.3.7
-metasploitable,5900,vnc,VNC (protocol 3.3)
-metasploitable,6000,X11,
-metasploitable,6667,irc,Unreal ircd
-metasploitable,80,http,Apache httpd 2.2.8 ((Ubuntu) DAV/2)
-tomcat-apache,22,ssh,OpenSSH 5.5p1 Debian 6+squeeze2 (protocol 2.0)
-tomcat-apache,443,ssl/http,Apache httpd 2.2.16 ((Debian))
-tomcat-apache,80,http,Apache httpd 2.2.16 ((Debian))
-ultimatelamp,80,http,Apache httpd 2.0.54 ((Ubuntu) PHP/5.0.5-2ubuntu1.2)
+Hostname,IP,PORT,SERVICE,VERSION
+bwa,10.2.1.8,139,netbios-ssn,Samba smbd 3.X (workgroup: WORKGROUP)
+bwa,10.2.1.8,143,imap,Courier Imapd (released 2008)
+bwa,10.2.1.8,22,ssh,OpenSSH 5.3p1 Debian 3ubuntu4 (protocol 2.0)
+bwa,10.2.1.8,445,netbios-ssn,Samba smbd 3.X (workgroup: WORKGROUP)
+bwa,10.2.1.8,5001,ovm-manager,Oracle VM Manager
+bwa,10.2.1.8,8080,http,Apache Tomcat/Coyote JSP engine 1.1
+metasploitable,10.2.1.1,1099,rmiregistry,GNU Classpath grmiregistry
+metasploitable,10.2.1.1,111,rpcbind,(rpcbind V2) 2 (rpc 100000)
+metasploitable,10.2.1.1,139,netbios-ssn,Samba smbd 3.X (workgroup: WORKGROUP)
+metasploitable,10.2.1.1,1524,,
+metasploitable,10.2.1.1,2049,nfs,(nfs V2-4)
+metasploitable,10.2.1.1,21,ftp,vsftpd 2.3.4
+metasploitable,10.2.1.1,2121,ftp,ProFTPD 1.3.1
+metasploitable,10.2.1.1,22,ssh,OpenSSH 4.7p1 Debian 8ubuntu1 (protocol 2.0)
+metasploitable,10.2.1.1,23,telnet,Linux telnetd
+metasploitable,10.2.1.1,25,smtp,Postfix smtpd
+metasploitable,10.2.1.1,3306,mysql,MySQL 5.0.51a-3ubuntu5
+metasploitable,10.2.1.1,445,netbios-ssn,Samba smbd 3.X (workgroup: WORKGROUP)
+metasploitable,10.2.1.1,512,,
+metasploitable,10.2.1.1,513,,
+metasploitable,10.2.1.1,514,tcpwrapped,
+metasploitable,10.2.1.1,53,domain,ISC BIND 9.4.2
+metasploitable,10.2.1.1,5432,postgresql,PostgreSQL DB 8.3.0 - 8.3.7
+metasploitable,10.2.1.1,5900,vnc,VNC (protocol 3.3)
+metasploitable,10.2.1.1,6000,X11,
+metasploitable,10.2.1.1,6667,irc,Unreal ircd
+metasploitable,10.2.1.1,80,http,Apache httpd 2.2.8 ((Ubuntu) DAV/2)
+tomcat-apache,10.2.1.6,22,ssh,OpenSSH 5.5p1 Debian 6+squeeze2 (protocol 2.0)
+tomcat-apache,10.2.1.6,443,ssl/http,Apache httpd 2.2.16 ((Debian))
+tomcat-apache,10.2.1.6,80,http,Apache httpd 2.2.16 ((Debian))
+ultimatelamp,10.2.1.3,80,http,Apache httpd 2.0.54 ((Ubuntu) PHP/5.0.5-2ubuntu1.2)
