@@ -116,6 +116,7 @@ of key web applications and user data.
   \item Root access to MySQL server
   \item Vulnerable Wordpress Spreadsheet Plugin
   \item Default Tomcat Installation
+  \item PHPMyAdmin root Access
 \end{enumerate}
 
 The following sections details the penetration testing results and provides
@@ -132,6 +133,7 @@ recommendations to remediate the issues identified.
     High & Root access to MySQL server. & Disable mysql root account. \\ \hline
     Medium & Vulnerable Wordpress Spreadsheet Plugin. & Disable vulnerable plugin or upgrade. \\ \hline
     High & Default Tomcat Installation & Change default tomcat installation. \\ \hline
+    High & PHPMyAdmin root Access & Secure access to phpMyAdmin. \\ \hline
     \hline
   \end{tabular}
 \end{center}
@@ -580,6 +582,45 @@ ability to run shell commands on this host.
 %\subsection{Vulnerable Splunk Installation}
 %\subsection{Domain Privilege Escalation}
 %\subsection{Attacker Control of Archmake Transactions}
+
+\newpage
+\section{PHPMyAdmin root Access}
+
+\begin{description}
+  \item[Severity] High
+  \item[Impact] Full data loss.
+  \item[Affected Resources/System] http://ultimatelamp.sait230.ca/phpmyadmin/
+  \item[Summary] PHPMyAdmin root Access
+\end{description}
+
+\paragraph{PHPMyAdmin}
+The PHPMyAdmin page is not secured and allows public access. This allows
+any user on the network with a browser to connect to get a dump of all user
+data defined in all databases hosted on this server. It allows
+users to view system variables, view running processes, add users, drop
+databases, export databases, import databases as well as many other functions.
+
+\begin{figure}[h!]
+  \includegraphics[width=\linewidth]{images/ultimatelamp-php-myadmin.png}
+  \caption{PHPMyAdmin dashboard.}
+  \label{fig:ultimatelamp-phpmyadmin}
+\end{figure}
+
+\paragraph{Recommendation}
+
+\begin{enumerate}
+  \item Disable remote root access to PHPMyAdmin.
+  \item Restrict which IP addresses can connect to PHPMyAdmin.
+  \item Enable SSL only access to PHPMyAdmin.
+  \item Change alias name `phpmyadmin' to something less obvious.
+\end{enumerate}
+
+\paragraph{References}
+
+\begin{enumerate}
+  \item http://docs.phpmyadmin.net/en/latest/config.html
+  \item https://gist.github.com/Exadra37/8708006
+\end{enumerate}
 
 \newpage
 \section{Appendix A: Reconnaissance}
