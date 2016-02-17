@@ -1,4 +1,4 @@
-Hostname,IP,PORT,SERVICE,VERSION
+Hostname,IP,PORT,PROTOCOL,SERVICE/VERSION
 bwa,10.2.1.8,139,netbios-ssn,Samba smbd 3.X (workgroup: WORKGROUP)
 bwa,10.2.1.8,143,imap,Courier Imapd (released 2008)
 bwa,10.2.1.8,22,ssh,OpenSSH 5.3p1 Debian 3ubuntu4 (protocol 2.0)
