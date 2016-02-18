@@ -5,6 +5,5 @@ ip address,hostname,operating system
 10.2.1.4,samurai.sait230.ca,Linux 2.6.x
 10.2.1.5,nessus.sait230.ca,Linux 2.6.x
 10.2.1.6,tomcat-apache.sait230.ca,Linux 2.6.x
-10.2.1.7,dvwa.sait230.ca,Linux 2.6.x
 10.2.1.8,bwa.sait230.ca,Linux 2.6.x
 10.2.1.30,bt5r3-was.sait230.ca,Linux 2.6.x

@@ -11,7 +11,9 @@
 \usepackage{csvsimple}
 \usepackage{draftwatermark}
 
-\SetWatermarkText{\textsc{Confidential}}
+\SetWatermarkText{\textsc{Restricted}}
+
+\usetikzlibrary{graphs,quotes}
 
 \lstset{
   numbers=left,
@@ -127,20 +129,18 @@ recommendations to remediate the issues identified.
 
 \subsection{Technical Summary of Issues}
 
-\begin{center}
-  \begin{tabular}{| l | l | | l |}
-    \hline
-    \textbf{Severity} & \textbf{Issue Title} & \textbf{Recommendation Summary} \\ \hline \hline
-    Medium & DVWA Cross Site Scripting & Validate all user input \\ \hline
-    High & DVWA SQL Injection & Validate all user input. \\ \hline
-    High & Root access to MySQL server. & Disable mysql root account. \\ \hline
-    Medium & Vulnerable Wordpress Spreadsheet Plugin. & Disable vulnerable plugin or upgrade. \\ \hline
-    High & Default Tomcat Installation & Change default tomcat installation. \\ \hline
-    High & PHPMyAdmin root Access & Secure access to phpMyAdmin. \\ \hline
-    High & Tikiwiki command execution flaw & Command execution flaw allows users to run arbitrary code within the target host. \\ \hline
-    \hline
-  \end{tabular}
-\end{center}
+\begin{tabular}{| l | l | l |}
+  \hline
+  \textbf{Severity} & \textbf{Issue Title} & \textbf{Recommendation Summary} \\ \hline \hline
+  Medium & DVWA Cross Site Scripting & Validate all user input \\ \hline
+  High & DVWA SQL Injection & Validate all user input. \\ \hline
+  High & Root access to MySQL server. & Disable mysql root account. \\ \hline
+  Medium & Vulnerable Wordpress Spreadsheet Plugin. & Disable vulnerable plugin or upgrade. \\ \hline
+  High & Default Tomcat Installation & Change default tomcat installation. \\ \hline
+  High & PHPMyAdmin root Access & Secure access to phpMyAdmin. \\ \hline
+  High & Tikiwiki command execution flaw & Allows arbitrary code execution. \\ \hline
+  \hline
+\end{tabular}
 
 \newpage
 \section{DVWA Cross Site Scripting}
@@ -185,7 +185,10 @@ crafted URL.
 
 \paragraph{Recommendation}
 
-Validate user input. Entity encode any user input data before rendering on a page.
+\begin{enumerate}
+  \item Validate user input.
+  \item Entity encode any user input data before rendering on a page.
+\end{enumerate}
 
 \newpage
 \section{DVWA SQL Injection}
@@ -197,7 +200,7 @@ Validate user input. Entity encode any user input data before rendering on a pag
   \item[Summary] SQL Injection vulnerability
 \end{description}
 
-There is a sql injection vulnerability in a web application called DVWA\@.
+There is a SQL injection vulnerability in a web application called DVWA\@.
 After logging in to the DVWA application. I changed the security level of the application to low
 and found a page called "SQL Injection".
 
@@ -338,7 +341,7 @@ root@bt-was:~# mysqldump -uroot -h metasploitable.sait230.ca \
 \end{lstlisting}
 
 \newpage
-With full root access and a mysql shell I can insert rows into any table in any database.
+With full root access and a MySQL shell I can insert rows into any table in any database.
 I can update any record and I can read all information in all tables.
 
 \begin{lstlisting}[language=SQL,basicstyle=\tiny]
@@ -493,7 +496,12 @@ I then took the MD5 hash for the admin account and looked up the reversed value 
 \end{figure}
 
 \newpage
-Next I logged in to the wordpress site using the username: admin, and passowrd: admin.
+Next I logged in to the wordpress site using the following credentials:
+
+\begin{description}
+  \item[username] admin
+  \item[password] admin
+\end{description}
 
 \begin{figure}[h!]
 	\includegraphics[width=\linewidth]{images/wp-logged-in.png}
@@ -506,6 +514,7 @@ Next I logged in to the wordpress site using the username: admin, and passowrd: 
 \begin{enumerate}
   \item Remove the vulnerable plugin.
   \item Upgrade the vulnerable plugin.
+  \item Enforce SSL only access to the login page.
 \end{enumerate}
 
 \paragraph{References}
