@@ -119,6 +119,7 @@ of key web applications and user data.
   \item Vulnerable Wordpress Spreadsheet Plugin
   \item Default Tomcat Installation
   \item PHPMyAdmin root Access
+  \item Tikiwiki command execution flaw
 \end{enumerate}
 
 The following sections details the penetration testing results and provides
@@ -184,7 +185,7 @@ crafted URL.
 
 \paragraph{Recommendation}
 
-Validate user input. HTML encode any user input data before rendering.
+Validate user input. Entity encode any user input data before rendering on a page.
 
 \newpage
 \section{DVWA SQL Injection}
@@ -218,7 +219,7 @@ returns does not mark the cookie as HTTPOnly, making it accessible via javascrip
 \end{figure}
 
 \newpage
-With a valid URL and Session cookie I can now use SQLMap to test out sql injection attacks.
+With a valid URL and Session cookie I can now use SQLMap to test out SQL injection attacks.
 I was able to get a dump of the database exported as csv files.
 
 \begin{lstlisting}[language=Bash,basicstyle=\tiny]
@@ -267,14 +268,17 @@ output/metasploitable.sait230.ca/dump/
 \end{lstlisting}
 
 It looks like the dvwa web application running on bwa.sait230.ca was connecting to an
-instance of mysql running from metasploitable.sait230.ca. Using this sql injection vulnerability
-I was able to dump the dvwa database as well as all the other databases
+instance of MySQL running from metasploitable.sait230.ca. Using this SQL injection vulnerability
+I was able to dump the DVWA database as well as all the other databases
 running from metasploitable.sait230.ca database server.
 
 \paragraph{Recommendation}
 
-Validate all user input. Use a different mysql accounts for each web application.
-Consider hosting each database on a separate database server.
+\begin{enumerate}
+  \item Validate all user input. 
+  \item Use a different MySQL accounts for each web application.
+  \item Consider hosting each database on a separate database server.
+\end{enumerate}
 
 \newpage
 \section{Root access to MySQL server}
@@ -288,8 +292,8 @@ Consider hosting each database on a separate database server.
 
 \paragraph{MySQL}
 Port 3306 is open on this host. This port
-is used by MySQL. I connected to this port using the MySQL client and
-used the default mysql installation user `root' without a password.
+is used by MySQL\@. I connected to this port using the MySQL client and
+used the default MySQL installation user `root' without a password.
 
 \begin{lstlisting}[basicstyle=\tiny]
 root@bt-was:~# mysql -uroot -h metasploitable.sait230.ca
@@ -381,8 +385,10 @@ mysql> select user, password from users;
 
 \paragraph{Recommendation}
 
-Require all MySQL accounts to have a password.
-Create firewall rules to filter which hosts can connect to the MySQL server.
+\begin{enumerate}
+  \item Require all MySQL accounts to have a password.
+  \item Create firewall rules to filter which hosts can connect to the MySQL server.
+\end{enumerate}
 
 \paragraph{References}
 
@@ -402,7 +408,8 @@ Create firewall rules to filter which hosts can connect to the MySQL server.
 
 \paragraph{Wordpress}
 
-Using wpscan we scanned this wordpress installation to find a list of installed plugins.
+Using WPScan I scanned this wordpress installation to find a list of installed plugins.
+The scan showed that one of the plugins has a SQL injection vulnerability.
 
 \begin{lstlisting}[language=Bash, firstline=26, lastline=39]
 root@bt-was:/pentest/web/wpscan# ./wpscan.rb --url bwa.sait230.ca/wordpress --enumerate p
@@ -449,8 +456,7 @@ Directory listing enabled? Yes.
 \end{lstlisting}
 
 \newpage
-wpscan has detected 1 vulnerable plugin that will allow SQL injection. So I went
-to exploit db to get the details for this vulnerability.
+Exploit db provided the details for this vulnerability. As well as a usuable exploit.
 
 \begin{figure}[h!]
 	\includegraphics[width=\linewidth]{images/wp-exploitdb.png}
@@ -460,7 +466,8 @@ to exploit db to get the details for this vulnerability.
 
 \newpage
 \paragraph{SQL Injection}
-Then I crafted the url to exploit the SQL injection vulnerability.
+
+Then I crafted a url to exploit the SQL injection vulnerability.
 
 \begin{figure}[h!]
 	\includegraphics[width=\linewidth]{images/wp-admin-credentials.png}
@@ -486,7 +493,7 @@ I then took the MD5 hash for the admin account and looked up the reversed value 
 \end{figure}
 
 \newpage
-Next I logged in to the wordpress site.
+Next I logged in to the wordpress site using the username: admin, and passowrd: admin.
 
 \begin{figure}[h!]
 	\includegraphics[width=\linewidth]{images/wp-logged-in.png}
@@ -514,7 +521,7 @@ Next I logged in to the wordpress site.
   \item[Severity] High
   \item[Impact] Start/Stop existing applications and/or upload malicious applications which can lead to full system compromise.
   \item[Affected Resources/System] http://metasploitable.sait230.ca/wordpress
-  \item[Summary] The Tomcat installation on this host is allows for remote access using the default installation credentials.
+  \item[Summary] The Tomcat installation on this host allows for remote access using the default installation credentials.
 \end{description}
 
 \paragraph{Apache Tomcat}
@@ -525,7 +532,13 @@ Tomcat installation:
 + /: Appears to be a default Apache Tomcat install.
 \end{lstlisting}
 
-The default credentials to access the Tomcat manager is username: tomcat and password: tomcat.
+The default credentials to access the Tomcat manager is:
+
+\begin{description}
+  \item[username] tomcat
+  \item[password] tomcat
+\end{description}
+
 The first step is to open the Tomcat homepage.
 
 \begin{figure}[h!]
