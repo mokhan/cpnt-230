@@ -26,24 +26,3 @@ Targets:
 * metasploitable.sait230.ca
 * tomcat-apache.sait230.ca
 * ultimatelamp.sait230.ca
-
-# web security technologies
-
-Pure web server: serve static content only.
-
-```ruby
-  client -> server
-```
-
-Dynamic web servers: servers that serve both static and active content.
-Application servers: 
-  * examples: websphere, bea weblogic, jboss, tomcat
-Proxy servers: 
-  * front ends for one or more applications called a reverse proxy.
-Http Protocol:
-  * request response pattern
-  * port 80
-
-HTTP request packets
-
-GET /login.php http/1.1
